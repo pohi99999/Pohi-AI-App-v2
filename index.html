@@ -97,9 +97,9 @@
             margin-bottom: 16px;
         }
         .login-card .project-logo {
-            max-width: 150px; /* Adjust as needed */
+            max-width: 150px; 
             height: auto;
-            border-radius: 8px; /* Optional: if the logo looks better with rounded corners */
+            border-radius: 8px; 
         }
 
 
@@ -124,9 +124,9 @@
             color: var(--green-accent) !important;
         }
         .app-logo-small {
-            max-height: 30px; /* Adjust as needed */
+            max-height: 30px; 
             margin-right: 8px;
-            filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(130deg); /* Attempt to make it white/greenish */
+            /* Filter removed as direct image should be used */
         }
 
 
@@ -233,6 +233,7 @@
             height: 24px;
             border-radius: 50%;
             object-fit: cover;
+            border: 1px solid var(--slate); /* Optional border for flags */
         }
 
     </style>
@@ -241,28 +242,17 @@
     <div id="app">
         <v-app dark> 
             <div v-if="!currentUserRole" class="login-video-container">
-                <!-- 
-                    Google Drive linkek közvetlen beágyazása nem megbízható. 
-                    Kérlek töltsd fel a videót egy nyilvános URL-re (pl. Netlify, Vercel, saját tárhely)
-                    és cseréld le az alábbi src-t. Addig egy sötét háttér lesz.
-                    Ha a videó a HTML fájl melletti mappában van (pl. 'assets/Hattervideo.mp4'), akkor a src="assets/Hattervideo.mp4" működhet.
-                -->
-                <!-- <video autoplay muted loop class="login-video-background" id="loginBgVideo">
-                    <source src="HELYŐRZŐ_VIDEO_URL/Hattervideo.mp4" type="video/mp4">
+                <video autoplay muted loop class="login-video-background" id="loginBgVideo" poster="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/AI.jpg">
+                    <source src="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/Hattervideo.mp4" type="video/mp4">
                     A böngésződ nem támogatja a HTML5 videót.
-                </video> -->
+                </video>
                 <div class="login-video-overlay"></div>
             </div>
 
             <v-main v-if="!currentUserRole" class="login-content-container">
                  <v-card class="pa-8 login-card" elevation="12" width="450">
                     <div class="project-logo-container">
-                        <!-- 
-                            Google Drive linkek közvetlen beágyazása nem megbízható.
-                            Kérlek töltsd fel az AI.jpeg képet egy nyilvános URL-re
-                            és cseréld le az alábbi src-t. Addig egy placeholder ikon/szöveg jelenik meg.
-                        -->
-                        <img src="https://placehold.co/150x80/0A192F/64FFDA?text=AI.jpeg" alt="Pohi AI Projekt Logó" class="project-logo">
+                        <img src="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/AI.jpg" alt="Pohi AI Projekt Logó" class="project-logo" onerror="this.src='https://placehold.co/150x80/0A192F/64FFDA?text=AI.jpg'; this.onerror=null;">
                         </div>
                     <v-card-title class="text-h5 font-weight-bold justify-center mb-4">
                         Pohi AI App
@@ -295,7 +285,7 @@
                 <v-app-bar app fixed elevate-on-scroll dark>
                     <v-app-bar-nav-icon @click.stop="drawer = !drawer" class="d-lg-none"></v-app-bar-nav-icon>
                     
-                    <img src="https://placehold.co/40x40/FFFFFF/0A192F?text=LOGO" alt="Pohi AI Logó" class="app-logo-small">
+                    <img src="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/logo.jpg" alt="Pohi AI Logó" class="app-logo-small" onerror="this.src='https://placehold.co/40x40/FFFFFF/0A192F?text=LOGO'; this.onerror=null;">
                     <v-toolbar-title class="ml-2">
                         Pohi AI
                     </v-toolbar-title>
@@ -337,25 +327,25 @@
                     <v-menu offset-y>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn icon v-bind="attrs" v-on="on" class="ml-2">
-                                <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=HU" alt="Magyar" class="language-btn">
+                                <img :src="currentLanguageFlag" alt="Aktuális nyelv" class="language-btn">
                                 </v-btn>
                         </template>
                         <v-list dense dark color="lightest-navy">
-                            <v-list-item @click="showSnackbar('Nyelvváltás: Magyar (Placeholder)')">
+                            <v-list-item @click="changeLanguage('hu')">
                                 <v-list-item-avatar size="24" class="mr-2">
-                                     <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=HU" alt="Magyar">
+                                     <img src="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/lh.jpg" alt="Magyar" onerror="this.src='https://placehold.co/24x24/FFFFFF/0A192F?text=HU'; this.onerror=null;">
                                      </v-list-item-avatar>
                                 <v-list-item-title>Magyar</v-list-item-title>
                             </v-list-item>
-                             <v-list-item @click="showSnackbar('Nyelvváltás: Angol (Placeholder)')">
+                             <v-list-item @click="changeLanguage('en')">
                                 <v-list-item-avatar size="24" class="mr-2">
-                                     <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=EN" alt="Angol">
+                                     <img src="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/le.jpg" alt="Angol" onerror="this.src='https://placehold.co/24x24/FFFFFF/0A192F?text=EN'; this.onerror=null;">
                                      </v-list-item-avatar>
                                 <v-list-item-title>English</v-list-item-title>
                             </v-list-item>
-                             <v-list-item @click="showSnackbar('Nyelvváltás: Német (Placeholder)')">
+                             <v-list-item @click="changeLanguage('de')">
                                 <v-list-item-avatar size="24" class="mr-2">
-                                     <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=DE" alt="Német">
+                                     <img src="https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/ld.jpg" alt="Német" onerror="this.src='https://placehold.co/24x24/FFFFFF/0A192F?text=DE'; this.onerror=null;">
                                      </v-list-item-avatar>
                                 <v-list-item-title>Deutsch</v-list-item-title>
                             </v-list-item>
@@ -1655,6 +1645,13 @@
                 marketNewsResponse: null,
                 marketNewsError: null,
 
+                currentLanguage: 'hu', // Default language
+                languageFlags: {
+                    hu: 'https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/lh.jpg',
+                    en: 'https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/le.jpg',
+                    de: 'https://raw.githubusercontent.com/pohi99999/Pohi-AI-App-v2/main/ld.jpg',
+                },
+
 
                 snackbar: {
                     show: false, text: '', color: 'info', timeout: 3000
@@ -1677,6 +1674,9 @@
                 currentUserRoleName() {
                     const role = this.roles.find(r => r.value === this.currentUserRole);
                     return role ? role.name : 'Ismeretlen Szerepkör';
+                },
+                currentLanguageFlag() {
+                    return this.languageFlags[this.currentLanguage] || 'https://placehold.co/24x24/FFFFFF/0A192F?text=--';
                 }
             },
             methods: {
@@ -2793,6 +2793,11 @@
                     }
                     document.body.removeChild(textArea);
                 },
+                changeLanguage(lang) {
+                    this.currentLanguage = lang;
+                    // Itt lenne a tényleges nyelvváltási logika, pl. i18n könyvtárral
+                    this.showSnackbar(`Nyelv váltva: ${lang.toUpperCase()} (Logika implementálása szükséges)`, 'info');
+                },
                 setupAuthListener() {
                     if (auth) {
                         auth.onAuthStateChanged(user => {
@@ -2818,4 +2823,4 @@
         });
     </script>
 </body>
-</html>
+</ht
