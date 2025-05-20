@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pohi AI App Prototípus</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --dark-navy: #0A192F; 
+            --lightest-navy: #233554;
+            --navy-shadow: rgba(2,12,27,0.7);
+            --slate: #8892b0;
+            --light-slate: #a8b2d1;
+            --lightest-slate: #ccd6f6;
+            --green-accent: #64FFDA; 
+            --white: #E6F1FF;
+            --card-bg: #112240; /* Slightly lighter than dark-navy for cards */
+        }
+
+        body, html, #app {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', 'Roboto', sans-serif;
+            background-color: var(--dark-navy) !important;
+        }
+        .v-application {
+            font-family: 'Inter', 'Roboto', sans-serif !important;
+            background-color: var(--dark-navy) !important;
+            color: var(--lightest-slate) !important;
+        }
+        
+        .login-video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        #loginBgVideo {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+        .login-video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 25, 47, 0.65); /* Darker overlay for better text contrast */
+        }
+
+        .login-content-container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--green-accent);
+            box-shadow: 0 0 20px 5px rgba(100, 255, 218, 0.15);
+            color: var(--lightest-slate) !important;
+        }
+        .login-card .v-card__title, .login-card .v-card__subtitle, .login-card .text-caption, .login-card .v-label {
+            color: var(--lightest-slate) !important;
+        }
+        .login-card .v-select .v-icon, .login-card .v-input__icon .v-icon {
+             color: var(--light-slate) !important;
+        }
+        .login-card a {
+            color: var(--green-accent) !important;
+            font-weight: 500;
+        }
+        .login-card .project-logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .login-card .project-logo {
+            max-width: 150px; /* Adjust as needed */
+            height: auto;
+            border-radius: 8px; /* Optional: if the logo looks better with rounded corners */
+        }
+
+
+        .v-app-bar {
+            background-color: rgba(10, 25, 47, 0.85) !important; 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px -10px var(--navy-shadow) !important;
+        }
+        .v-app-bar .v-toolbar__title, .v-app-bar .v-btn:not(.v-btn--icon) {
+            color: var(--lightest-slate) !important;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+         .v-app-bar .v-btn:not(.v-btn--icon):hover {
+            color: var(--green-accent) !important;
+            background-color: transparent !important;
+        }
+        .v-app-bar .v-icon {
+            color: var(--light-slate) !important;
+        }
+        .v-app-bar .v-btn--icon:hover .v-icon {
+            color: var(--green-accent) !important;
+        }
+        .app-logo-small {
+            max-height: 30px; /* Adjust as needed */
+            margin-right: 8px;
+            filter: brightness(0) invert(1) sepia(1) saturate(5) hue-rotate(130deg); /* Attempt to make it white/greenish */
+        }
+
+
+        .v-navigation-drawer {
+            background-color: var(--lightest-navy) !important;
+            border-right: 1px solid var(--slate) !important;
+        }
+         .v-navigation-drawer .v-list-item__title, .v-navigation-drawer .v-list-item__subtitle, .v-navigation-drawer .v-subheader {
+            color: var(--light-slate) !important;
+        }
+        .v-navigation-drawer .v-list-item--active .v-list-item__title {
+            color: var(--green-accent) !important;
+        }
+        .v-navigation-drawer .v-icon {
+            color: var(--slate) !important;
+        }
+         .v-navigation-drawer .v-list-item--active .v-icon {
+            color: var(--green-accent) !important;
+        }
+
+
+        .main-content-area {
+            background-color: var(--dark-navy) !important; 
+            border: 1px solid var(--lightest-navy);
+            color: var(--lightest-slate) !important;
+        }
+        .main-content-area h1, .main-content-area h2, .main-content-area h3, .main-content-area p, .main-content-area .v-label {
+            color: var(--lightest-slate) !important;
+        }
+
+        .api-response-card, .mock-data-display .v-card {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--lightest-navy);
+            transition: all 0.25s cubic-bezier(0.645,0.045,0.355,1);
+        }
+        .api-response-card:hover, .mock-data-display .v-card:hover {
+            box-shadow: 0 0 15px 3px rgba(100, 255, 218, 0.25) !important; 
+            transform: translateY(-4px);
+            border-color: var(--green-accent);
+        }
+        .api-response-card .v-card__title {
+             color: var(--green-accent) !important;
+        }
+        .api-response-card .v-card__text {
+             color: var(--light-slate) !important;
+        }
+
+        .calculation-result {
+            color: var(--green-accent) !important;
+        }
+        .user-id-display {
+            color: var(--slate) !important;
+        }
+        .v-btn.primary, .v-btn.success { 
+             background-color: var(--green-accent) !important;
+             color: var(--dark-navy) !important;
+             font-weight: 500;
+        }
+        .v-btn.primary:hover, .v-btn.success:hover {
+             filter: brightness(1.15);
+        }
+        .v-btn.v-btn--text {
+             color: var(--light-slate) !important;
+        }
+        .v-btn.v-btn--text:hover {
+             color: var(--green-accent) !important;
+        }
+
+        .v-text-field--outlined fieldset {
+            border-color: var(--lightest-navy) !important;
+        }
+        .v-text-field--outlined.v-input--is-focused fieldset {
+            border-color: var(--green-accent) !important;
+        }
+        .v-select__slot .v-label, .v-text-field__slot .v-label {
+            color: var(--light-slate) !important;
+        }
+        .v-input input, .v-textarea textarea, .v-select__selection {
+            color: var(--white) !important;
+        }
+        .v-input .v-icon {
+            color: var(--slate) !important;
+        }
+         .v-list-item__subtitle {
+            color: var(--slate) !important;
+        }
+        .v-chip {
+            background-color: rgba(100, 255, 218, 0.1) !important; /* Green accent with opacity */
+            border: 1px solid var(--green-accent) !important;
+            color: var(--green-accent) !important;
+            font-weight: 500;
+        }
+        .v-tabs-bar {
+            background-color: transparent !important;
+        }
+        .v-tab {
+            color: var(--slate) !important;
+        }
+        .v-tab--active {
+            color: var(--green-accent) !important;
+        }
+        .language-btn img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app dark> 
+            <div v-if="!currentUserRole" class="login-video-container">
+                <!-- 
+                    Google Drive linkek közvetlen beágyazása nem megbízható. 
+                    Kérlek töltsd fel a videót egy nyilvános URL-re (pl. Netlify, Vercel, saját tárhely)
+                    és cseréld le az alábbi src-t. Addig egy sötét háttér lesz.
+                    Ha a videó a HTML fájl melletti mappában van (pl. 'assets/Hattervideo.mp4'), akkor a src="assets/Hattervideo.mp4" működhet.
+                -->
+                <!-- <video autoplay muted loop class="login-video-background" id="loginBgVideo">
+                    <source src="HELYŐRZŐ_VIDEO_URL/Hattervideo.mp4" type="video/mp4">
+                    A böngésződ nem támogatja a HTML5 videót.
+                </video> -->
+                <div class="login-video-overlay"></div>
+            </div>
+
+            <v-main v-if="!currentUserRole" class="login-content-container">
+                 <v-card class="pa-8 login-card" elevation="12" width="450">
+                    <div class="project-logo-container">
+                        <!-- 
+                            Google Drive linkek közvetlen beágyazása nem megbízható.
+                            Kérlek töltsd fel az AI.jpeg képet egy nyilvános URL-re
+                            és cseréld le az alábbi src-t. Addig egy placeholder ikon/szöveg jelenik meg.
+                        -->
+                        <img src="https://placehold.co/150x80/0A192F/64FFDA?text=AI.jpeg" alt="Pohi AI Projekt Logó" class="project-logo">
+                        </div>
+                    <v-card-title class="text-h5 font-weight-bold justify-center mb-4">
+                        Pohi AI App
+                    </v-card-title>
+                    <v-card-subtitle class="text-center mb-6">
+                        Kérjük, válassza ki a szerepkörét a folytatáshoz
+                    </v-card-subtitle>
+                    <v-select
+                        v-model="selectedRole"
+                        :items="roles"
+                        item-text="name"
+                        item-value="value"
+                        label="Szerepkör"
+                        outlined
+                        dense
+                        class="mb-6"
+                        prepend-inner-icon="mdi-account-tie"
+                        dark
+                    ></v-select>
+                    <v-btn block color="primary" large @click="login" :disabled="!selectedRole">
+                        Bejelentkezés / Tovább
+                    </v-btn>
+                    <div class="mt-4 text-center text-caption">
+                        Még nincs fiókja? <a href="#" @click.prevent="showSnackbar('Regisztrációs funkció hamarosan!')">Regisztráció</a>
+                    </div>
+                </v-card>
+            </v-main>
+
+            <template v-else>
+                <v-app-bar app fixed elevate-on-scroll dark>
+                    <v-app-bar-nav-icon @click.stop="drawer = !drawer" class="d-lg-none"></v-app-bar-nav-icon>
+                    
+                    <img src="https://placehold.co/40x40/FFFFFF/0A192F?text=LOGO" alt="Pohi AI Logó" class="app-logo-small">
+                    <v-toolbar-title class="ml-2">
+                        Pohi AI
+                    </v-toolbar-title>
+                    <v-spacer></v-spacer>
+                     <template v-if="$vuetify.breakpoint.lgAndUp">
+                        <v-btn text @click="navigateTo('Irányítópult')">Irányítópult</v-btn>
+                        <template v-if="currentUserRole === 'admin'">
+                            <v-menu offset-y>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn text v-bind="attrs" v-on="on">Adminisztráció <v-icon right small>mdi-menu-down</v-icon></v-btn>
+                                </template>
+                                <v-list dense dark color="lightest-navy">
+                                    <v-list-item @click="navigateTo('Felhasználók Kezelése')"><v-list-item-title>Felhasználók</v-list-item-title></v-list-item>
+                                    <v-list-item @click="navigateTo('Vevői Igények Kezelése')"><v-list-item-title>Vevői Igények</v-list-item-title></v-list-item>
+                                    <v-list-item @click="navigateTo('Gyártói Készletek Kezelése')"><v-list-item-title>Gyártói Készletek</v-list-item-title></v-list-item>
+                                    <v-list-item @click="navigateTo('Összevezetések')"><v-list-item-title>Összevezetések</v-list-item-title></v-list-item>
+                                </v-list>
+                            </v-menu>
+                            <v-menu offset-y>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn text v-bind="attrs" v-on="on">Fuvarszervezés <v-icon right small>mdi-menu-down</v-icon></v-btn>
+                                </template>
+                                 <v-list dense dark color="lightest-navy">
+                                    <v-list-item @click="navigateTo('Kamion Tervezés')"><v-list-item-title>Kamion Tervezés</v-list-item-title></v-list-item>
+                                    <v-list-item @click="navigateTo('Szállítási Sablonok')"><v-list-item-title>Szállítási Sablonok</v-list-item-title></v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </template>
+                         <template v-if="currentUserRole === 'buyer'">
+                            <v-btn text @click="navigateTo('Új Igény Leadása')">Új Igény Leadása</v-btn>
+                            <v-btn text @click="navigateTo('Igényeim')">Igényeim</v-btn>
+                        </template>
+                        <template v-if="currentUserRole === 'manufacturer'">
+                            <v-btn text @click="navigateTo('Új Készlet Feltöltése')">Új Készlet Feltöltése</v-btn>
+                            <v-btn text @click="navigateTo('Készleteim')">Készleteim</v-btn>
+                        </template>
+                    </template>
+                    
+                    <v-menu offset-y>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn icon v-bind="attrs" v-on="on" class="ml-2">
+                                <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=HU" alt="Magyar" class="language-btn">
+                                </v-btn>
+                        </template>
+                        <v-list dense dark color="lightest-navy">
+                            <v-list-item @click="showSnackbar('Nyelvváltás: Magyar (Placeholder)')">
+                                <v-list-item-avatar size="24" class="mr-2">
+                                     <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=HU" alt="Magyar">
+                                     </v-list-item-avatar>
+                                <v-list-item-title>Magyar</v-list-item-title>
+                            </v-list-item>
+                             <v-list-item @click="showSnackbar('Nyelvváltás: Angol (Placeholder)')">
+                                <v-list-item-avatar size="24" class="mr-2">
+                                     <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=EN" alt="Angol">
+                                     </v-list-item-avatar>
+                                <v-list-item-title>English</v-list-item-title>
+                            </v-list-item>
+                             <v-list-item @click="showSnackbar('Nyelvváltás: Német (Placeholder)')">
+                                <v-list-item-avatar size="24" class="mr-2">
+                                     <img src="https://placehold.co/24x24/FFFFFF/0A192F?text=DE" alt="Német">
+                                     </v-list-item-avatar>
+                                <v-list-item-title>Deutsch</v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
+
+
+                    <v-btn text @click="logout" class="ml-2">
+                        <v-icon left>mdi-logout</v-icon>
+                        Kijelentkezés
+                    </v-btn>
+                    <v-btn icon @click="showSnackbar('Értesítések hamarosan!')" class="ml-2">
+                        <v-badge color="primary" dot overlap v-if="false"> <v-icon>mdi-bell-outline</v-icon>
+                        </v-badge>
+                         <v-icon v-else>mdi-bell-outline</v-icon>
+                    </v-btn>
+                </v-app-bar>
+
+                <v-navigation-drawer app v-model="drawer" :permanent="$vuetify.breakpoint.lgAndUp" :temporary="!$vuetify.breakpoint.lgAndUp" dark>
+                    <v-list dense nav>
+                        <v-list-item class="px-2 mb-2 d-lg-none"> <v-list-item-avatar>
+                                <v-icon large color="primary">mdi-forest</v-icon>
+                            </v-list-item-avatar>
+                            <v-list-item-content>
+                                <v-list-item-title class="text-h6 font-weight-medium" style="color: var(--lightest-slate)">
+                                    Pohi AI
+                                </v-list-item-title>
+                                <v-list-item-subtitle style="color: var(--slate)">{{ currentUserRoleName }}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-divider class="d-lg-none"></v-divider>
+
+                        <v-list-item link @click="navigateTo('Irányítópult')">
+                            <v-list-item-icon><v-icon>mdi-view-dashboard</v-icon></v-list-item-icon>
+                            <v-list-item-title>Irányítópult</v-list-item-title>
+                        </v-list-item>
+
+                        <template v-if="currentUserRole === 'admin'">
+                            <v-list-item-group color="primary">
+                                <v-subheader>ADMINISZTRÁCIÓ</v-subheader>
+                                <v-list-item link @click="navigateTo('Felhasználók Kezelése')">
+                                    <v-list-item-icon><v-icon>mdi-account-group</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Felhasználók</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item link @click="navigateTo('Vevői Igények Kezelése')">
+                                    <v-list-item-icon><v-icon>mdi-clipboard-list-outline</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Vevői Igények</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item link @click="navigateTo('Gyártói Készletek Kezelése')">
+                                    <v-list-item-icon><v-icon>mdi-store-check-outline</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Gyártói Készletek</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item link @click="navigateTo('Összevezetések')">
+                                    <v-list-item-icon><v-icon>mdi-link-variant</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Összevezetések</v-list-item-title>
+                                </v-list-item>
+                                <v-list-group prepend-icon="mdi-truck-delivery" no-action :value="true">
+                                    <template v-slot:activator>
+                                        <v-list-item-title>Fuvarszervezés</v-list-item-title>
+                                    </template>
+                                    <v-list-item link @click="navigateTo('Kamion Tervezés')">
+                                        <v-list-item-title>Kamion Tervezés</v-list-item-title>
+                                        <v-list-item-icon><v-icon>mdi-truck-cargo-container</v-icon></v-list-item-icon>
+                                    </v-list-item>
+                                    <v-list-item link @click="navigateTo('Szállítási Sablonok')">
+                                        <v-list-item-title>Szállítási Sablonok</v-list-item-title>
+                                        <v-list-item-icon><v-icon>mdi-file-document-outline</v-icon></v-list-item-icon>
+                                    </v-list-item>
+                                </v-list-group>
+                            </v-list-item-group>
+                        </template>
+
+                        <template v-if="currentUserRole === 'buyer'">
+                             <v-list-item-group color="primary">
+                                <v-subheader>VEVŐI FUNKCIÓK</v-subheader>
+                                <v-list-item link @click="navigateTo('Új Igény Leadása')">
+                                    <v-list-item-icon><v-icon>mdi-playlist-plus</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Új Igény Leadása</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item link @click="navigateTo('Igényeim')">
+                                    <v-list-item-icon><v-icon>mdi-format-list-bulleted</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Igényeim</v-list-item-title>
+                                </v-list-item>
+                            </v-list-item-group>
+                        </template>
+
+                        <template v-if="currentUserRole === 'manufacturer'">
+                            <v-list-item-group color="primary">
+                                <v-subheader>GYÁRTÓI FUNKCIÓK</v-subheader>
+                                <v-list-item link @click="navigateTo('Új Készlet Feltöltése')">
+                                    <v-list-item-icon><v-icon>mdi-package-variant-plus</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Új Készlet Feltöltése</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item link @click="navigateTo('Készleteim')">
+                                    <v-list-item-icon><v-icon>mdi-archive-outline</v-icon></v-list-item-icon>
+                                    <v-list-item-title>Készleteim</v-list-item-title>
+                                </v-list-item>
+                            </v-list-item-group>
+                        </template>
+                        
+                        <v-divider class="my-2"></v-divider>
+                        <v-list-item link @click="showSnackbar('Profil szerkesztése hamarosan!')">
+                            <v-list-item-icon><v-icon>mdi-account-cog-outline</v-icon></v-list-item-icon>
+                            <v-list-item-title>Profilom</v-list-item-title>
+                        </v-list-item>
+                        </v-list>
+                    <div class="user-id-display" v-if="userId">
+                        Felhasználói ID: {{ userId }}
+                    </div>
+                </v-navigation-drawer>
+
+                <v-main style="padding-top: 64px !important;"> <v-container fluid class="pa-0">
+                        <v-card class="pa-6 ma-4 main-content-area" elevation="2" min-height="calc(100vh - 64px - 32px - 32px)"> <template v-if="currentPage === 'Irányítópult' && currentUserRole === 'admin'">
+                                <h1 class="text-h4 mb-4">Adminisztrátori Irányítópult</h1>
+                                <p class="body-1">Üdvözöljük a Pohi AI App adminisztrációs felületén!</p>
+                                
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Piaci Hírek/Összefoglaló</h2>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getMarketNews" 
+                                        :loading="isLoadingMarketNews" 
+                                        :disabled="isLoadingMarketNews"
+                                    >
+                                        <v-icon left>mdi-newspaper-variant-multiple-outline</v-icon>
+                                        ✨ Friss Piaci Hírek Generálása
+                                    </v-btn>
+                                </div>
+                                <p v-if="marketNewsError" class="mt-2 red--text text--darken-2">{{ marketNewsError }}</p>
+                                <v-card v-if="marketNewsResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Piaci Hírek (Szimulált):</v-card-title>
+                                    <v-card-text class="api-response-content">{{ marketNewsResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">Piaci Információk (AI Asszisztens)</h2>
+                                <v-textarea
+                                    v-model="marketInfoQuery"
+                                    label="Kérdés az akácfa piaccal kapcsolatban"
+                                    placeholder="Pl.: Mik a jelenlegi trendek az akácfa oszlopok piacán Magyarországon?"
+                                    outlined
+                                    rows="2"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary" 
+                                        @click="getMarketInsights" 
+                                        :loading="isLoadingMarketInfo" 
+                                        :disabled="isLoadingMarketInfo || !marketInfoQuery.trim()"
+                                    >
+                                        <v-icon left>mdi-lightbulb-on-outline</v-icon>
+                                        ✨ Piaci információ kérése
+                                    </v-btn>
+                                </div>
+                                <p v-if="marketInfoError" class="mt-2 red--text text--darken-2">{{ marketInfoError }}</p>
+                                <v-card v-if="marketInfoResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Válasza:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ marketInfoResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Segítség: GYIK Generálás Új Funkciókhoz</h2>
+                                <v-textarea
+                                    v-model="newFeatureDescriptionForFaq"
+                                    label="Új platform funkció rövid leírása"
+                                    placeholder="Pl.: 'Mostantól a gyártók feltölthetik a termékeikhez kapcsolódó fenntarthatósági tanúsítványokat.'"
+                                    outlined
+                                    rows="2"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="generateFaqForNewFeature" 
+                                        :loading="isLoadingNewFeatureFaq" 
+                                        :disabled="isLoadingNewFeatureFaq || !newFeatureDescriptionForFaq.trim()"
+                                    >
+                                        <v-icon left>mdi-frequently-asked-questions</v-icon>
+                                        ✨ GYIK Generálása a Funkcióhoz
+                                    </v-btn>
+                                </div>
+                                <p v-if="newFeatureFaqError" class="mt-2 red--text text--darken-2">{{ newFeatureFaqError }}</p>
+                                <v-card v-if="newFeatureFaqResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Által Generált GYIK Javaslat:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ newFeatureFaqResponse }}</v-card-text>
+                                </v-card>
+
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Segítség: Gyakori Kérdések Válaszai</h2>
+                                 <v-textarea
+                                    v-model="faqQuery"
+                                    label="Felhasználói kérdés (pl. platform használatáról)"
+                                    placeholder="Pl.: Hogyan tudok új igényt rögzíteni vevőként?"
+                                    outlined
+                                    rows="2"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getFaqAnswer" 
+                                        :loading="isLoadingFaqAnswer" 
+                                        :disabled="isLoadingFaqAnswer || !faqQuery.trim()"
+                                    >
+                                        <v-icon left>mdi-comment-question-outline</v-icon>
+                                        ✨ Válasz generálása
+                                    </v-btn>
+                                </div>
+                                <p v-if="faqAnswerError" class="mt-2 red--text text--darken-2">{{ faqAnswerError }}</p>
+                                <v-card v-if="faqAnswerResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">Generált GYIK Válasz:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ faqAnswerResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Vevői Visszajelzés Elemző</h2>
+                                <v-textarea
+                                    v-model="customerFeedbackText"
+                                    label="Vevői visszajelzések (több visszajelzést is beilleszthet)"
+                                    placeholder="Pl.: 'A szállítás gyors volt, a termék minősége kiváló! - Kovács János'\n'Kicsit késett a rendelés, de az ügyfélszolgálat segítőkész volt. - Nagy Anna'"
+                                    outlined
+                                    rows="5"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="analyzeCustomerFeedback" 
+                                        :loading="isLoadingFeedbackAnalysis" 
+                                        :disabled="isLoadingFeedbackAnalysis || !customerFeedbackText.trim()"
+                                    >
+                                        <v-icon left>mdi-emoticon-happy-outline</v-icon>
+                                        ✨ Visszajelzések Hangulatának és Témáinak Elemzése
+                                    </v-btn>
+                                </div>
+                                <p v-if="feedbackAnalysisError" class="mt-2 red--text text--darken-2">{{ feedbackAnalysisError }}</p>
+                                <v-card v-if="feedbackAnalysisResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Visszajelzés Elemzés:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ feedbackAnalysisResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Regionális Keresleti Előrejelzés</h2>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-select
+                                            v-model="regionalDemandForecast.region"
+                                            :items="['Észak-Magyarország', 'Észak-Alföld', 'Dél-Alföld', 'Közép-Magyarország', 'Közép-Dunántúl', 'Nyugat-Dunántúl', 'Dél-Dunántúl']"
+                                            label="Régió"
+                                            outlined dense dark
+                                        ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                         <v-select
+                                            v-model="regionalDemandForecast.productType"
+                                            :items="['Akác oszlop (általános)', 'Akác fűrészáru (általános)', 'Akác karó', 'Akác tűzifa']"
+                                            label="Terméktípus"
+                                            outlined dense dark
+                                        ></v-select>
+                                    </v-col>
+                                </v-row>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getRegionalDemandForecast" 
+                                        :loading="isLoadingRegionalDemand" 
+                                        :disabled="isLoadingRegionalDemand || !regionalDemandForecast.region || !regionalDemandForecast.productType"
+                                    >
+                                        <v-icon left>mdi-chart-line-variant</v-icon>
+                                        ✨ Keresleti Előrejelzés Kérése
+                                    </v-btn>
+                                </div>
+                                <p v-if="regionalDemandError" class="mt-2 red--text text--darken-2">{{ regionalDemandError }}</p>
+                                <v-card v-if="regionalDemandResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Regionális Keresleti Előrejelzés (Becslés):</v-card-title>
+                                    <v-card-text class="api-response-content">{{ regionalDemandResponse }}</v-card-text>
+                                </v-card>
+
+
+                                 <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!marketInfoResponse && !isLoadingMarketInfo && !faqAnswerResponse && !isLoadingFaqAnswer && !feedbackAnalysisResponse && !isLoadingFeedbackAnalysis && !regionalDemandResponse && !isLoadingRegionalDemand && !newFeatureFaqResponse && !isLoadingNewFeatureFaq && !marketNewsResponse && !isLoadingMarketNews">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+
+                            <template v-else-if="currentPage === 'Felhasználók Kezelése' && currentUserRole === 'admin'">
+                                <h1 class="text-h4 mb-4">{{ currentPageTitle }}</h1>
+                                <p class="body-1 mb-6">
+                                    Itt az adminisztrátor kezelheti a felhasználókat és AI segítségével üzenetvázlatokat generálhat, valamint tartalmi irányelveket ellenőrizhet.
+                                </p>
+                                
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Kommunikációs Asszisztens</h2>
+                                <v-select
+                                    v-model="communicationTarget"
+                                    :items="['Vevő', 'Gyártó']"
+                                    label="Címzett típusa"
+                                    outlined
+                                    dense
+                                    class="mb-3"
+                                    dark
+                                ></v-select>
+                                <v-textarea
+                                    v-model="communicationScenario"
+                                    label="Kommunikációs cél / forgatókönyv"
+                                    placeholder="Pl.: Értesíteni a vevőt (ID: D001) a rendelése egy hetes késéséről alapanyaghiány miatt."
+                                    outlined
+                                    rows="3"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary" 
+                                        @click="generateCommunicationDraft" 
+                                        :loading="isLoadingCommunicationDraft" 
+                                        :disabled="isLoadingCommunicationDraft || !communicationScenario.trim() || !communicationTarget"
+                                    >
+                                        <v-icon left>mdi-message-text-outline</v-icon>
+                                        ✨ Üzenetvázlat Generálása
+                                    </v-btn>
+                                </div>
+                                <p v-if="communicationDraftError" class="mt-2 red--text text--darken-2">{{ communicationDraftError }}</p>
+                                <v-card v-if="communicationDraftResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">Generált Üzenetvázlat:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ communicationDraftResponse }}</v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn text color="primary" @click="copyToClipboard(communicationDraftResponse)">Vágólapra másolás</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Tartalmi Irányelvek Ellenőrző</h2>
+                                <v-textarea
+                                    v-model="textContentForGuidelineCheck"
+                                    label="Ellenőrizendő szöveg"
+                                    placeholder="Pl. egy termékmegjegyzés, felhasználói hozzászólás..."
+                                    outlined
+                                    rows="4"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="checkContentGuidelines" 
+                                        :loading="isLoadingGuidelineCheck" 
+                                        :disabled="isLoadingGuidelineCheck || !textContentForGuidelineCheck.trim()"
+                                    >
+                                        <v-icon left>mdi-shield-check-outline</v-icon>
+                                        ✨ Tartalmi Irányelvek Ellenőrzése
+                                    </v-btn>
+                                </div>
+                                <p v-if="guidelineCheckError" class="mt-2 red--text text--darken-2">{{ guidelineCheckError }}</p>
+                                <v-card v-if="guidelineCheckResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Tartalmi Ellenőrzés Eredménye:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ guidelineCheckResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!communicationDraftResponse && !isLoadingCommunicationDraft && !guidelineCheckResponse && !isLoadingGuidelineCheck">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+
+
+                            <template v-else-if="currentPage === 'Új Igény Leadása'">
+                                <h2 class="text-h5 mb-6">Új Igény Leadása (Akác Oszlop)</h2>
+                                <v-form ref="demandForm">
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="productDetails.diameterType"
+                                                :items="['Középátmérő', 'Csúcsátmérő']"
+                                                label="Átmérő Típusa"
+                                                outlined dense dark
+                                                :rules="[v => !!v || 'Kötelező mező']"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="6" md="3">
+                                            <v-text-field
+                                                v-model.number="productDetails.diameterFrom"
+                                                label="Átmérő -tól (cm)"
+                                                type="number"
+                                                outlined dense dark
+                                                suffix="cm"
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív szám']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="6" md="3">
+                                            <v-text-field
+                                                v-model.number="productDetails.diameterTo"
+                                                label="Átmérő -ig (cm)"
+                                                type="number"
+                                                outlined dense dark
+                                                suffix="cm"
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív szám', v => (productDetails.diameterFrom && v >= productDetails.diameterFrom) || '-tól értékénél nagyobb vagy egyenlő legyen']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model.number="productDetails.length"
+                                                label="Hossz (m)"
+                                                type="number"
+                                                outlined dense dark
+                                                suffix="m"
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív szám']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model.number="productDetails.quantity"
+                                                label="Darabszám"
+                                                type="number"
+                                                outlined dense dark
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív egész szám']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                     <div class="gemini-button-container" v-if="productDetails.diameterFrom && productDetails.length">
+                                        <v-btn small color="primary" @click="getAlternativeProducts" :loading="isLoadingAlternatives" :disabled="isLoadingAlternatives">
+                                            <v-icon left small>mdi-compare-horizontal</v-icon>
+                                            ✨ Alternatív Termékek Javaslata
+                                        </v-btn>
+                                    </div>
+                                    <p v-if="alternativeProductsError" class="mt-2 red--text text--darken-2">{{ alternativeProductsError }}</p>
+                                    <v-card v-if="alternativeProductsResponse" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Alternatíva Javaslatok:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ alternativeProductsResponse }}</v-card-text>
+                                        
+                                        <div class="gemini-button-container mt-3" v-if="alternativeProductsResponse">
+                                            <v-btn small color="primary" @click="getProductComparison" :loading="isLoadingComparison" :disabled="isLoadingComparison">
+                                                <v-icon left small>mdi-scale-balance</v-icon>
+                                                ✨ Termékek Összehasonlítása
+                                            </v-btn>
+                                        </div>
+                                        <p v-if="comparisonError" class="mt-2 red--text text--darken-2">{{ comparisonError }}</p>
+                                        <v-card v-if="comparisonResponse" class="api-response-card mt-2" outlined style="background-color: #102a43;"> <v-card-title class="text-subtitle-2 font-weight-medium pb-1">AI Összehasonlítás:</v-card-title>
+                                            <v-card-text class="api-response-content">{{ comparisonResponse }}</v-card-text>
+                                        </v-card>
+                                    </v-card>
+
+                                    <v-textarea
+                                        v-model="productDetails.notes"
+                                        label="Megjegyzés (opcionális)"
+                                        outlined dense dark
+                                        rows="3"
+                                        class="mt-2"
+                                    ></v-textarea>
+                                    <div class="gemini-button-container">
+                                        <v-btn small color="primary" @click="generateProductNote" :loading="isGeneratingNote" :disabled="isGeneratingNote">
+                                            <v-icon left small>mdi-creation</v-icon>
+                                            ✨ Automatikus megjegyzés generálása
+                                        </v-btn>
+                                    </div>
+                                     <p v-if="generatedNoteError" class="mt-2 red--text text--darken-2">{{ generatedNoteError }}</p>
+
+                                    <p v-if="productDetails.calculatedVolume !== null" class="mt-4 calculation-result">
+                                        Számított köbméter: {{ productDetails.calculatedVolume.toFixed(3) }} m³
+                                        <span v-if="productDetails.quantity > 0 && productDetails.calculatedVolume > 0">
+                                            ({{ (productDetails.calculatedVolume / productDetails.quantity).toFixed(4) }} m³/db)
+                                        </span>
+                                    </p>
+                                     <p v-if="calculationError" class="mt-2 red--text text--darken-2">{{ calculationError }}</p>
+
+                                    <v-btn color="success" class="mt-4" @click="submitDemand">Igény Leadása</v-btn>
+                                    <v-btn text color="grey darken-1" class="mt-4 ml-2" @click="resetForm('demandForm')">Űrlap Törlése</v-btn>
+                                </v-form>
+                            </template>
+
+                            <template v-else-if="currentPage === 'Új Készlet Feltöltése'">
+                                <h2 class="text-h5 mb-6">Új Készlet Feltöltése (Akác Oszlop)</h2>
+                                <v-form ref="stockForm">
+                                   <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="productDetails.diameterType"
+                                                :items="['Középátmérő', 'Csúcsátmérő']"
+                                                label="Átmérő Típusa"
+                                                outlined dense dark
+                                                :rules="[v => !!v || 'Kötelező mező']"
+                                            ></v-select>
+                                        </v-col>
+                                        <v-col cols="6" md="3">
+                                            <v-text-field
+                                                v-model.number="productDetails.diameterFrom"
+                                                label="Átmérő -tól (cm)"
+                                                type="number"
+                                                outlined dense dark
+                                                suffix="cm"
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív szám']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="6" md="3">
+                                            <v-text-field
+                                                v-model.number="productDetails.diameterTo"
+                                                label="Átmérő -ig (cm)"
+                                                type="number"
+                                                outlined dense dark
+                                                suffix="cm"
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív szám', v => (productDetails.diameterFrom && v >= productDetails.diameterFrom) || '-tól értékénél nagyobb vagy egyenlő legyen']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model.number="productDetails.length"
+                                                label="Hossz (m)"
+                                                type="number"
+                                                outlined dense dark
+                                                suffix="m"
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív szám']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model.number="productDetails.quantity"
+                                                label="Darabszám"
+                                                type="number"
+                                                outlined dense dark
+                                                :rules="[v => !!v || 'Kötelező', v => v > 0 || 'Pozitív egész szám']"
+                                                @input="calculateVolume"
+                                            ></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                     <v-text-field
+                                        v-model="productDetails.price"
+                                        label="Ár (opcionális, pl. EUR/m³ vagy Ft/db)"
+                                        outlined dense dark
+                                        class="mt-2"
+                                    ></v-text-field>
+                                    <div class="gemini-button-container">
+                                        <v-btn small color="primary" @click="getAIPriceSuggestion" :loading="isLoadingPriceSuggestion" :disabled="isLoadingPriceSuggestion || !productDetails.diameterFrom || !productDetails.length">
+                                            <v-icon left small>mdi-cash-usd-outline</v-icon>
+                                            ✨ AI Árjavaslat Kérése
+                                        </v-btn>
+                                    </div>
+                                    <p v-if="priceSuggestionError" class="mt-2 red--text text--darken-2">{{ priceSuggestionError }}</p>
+                                    <v-card v-if="aiPriceSuggestion" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Árjavaslat:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ aiPriceSuggestion }}</v-card-text>
+                                    </v-card>
+                                    
+                                    <v-textarea
+                                        v-model="productDetails.sustainabilityInfo"
+                                        label="Fenntarthatósági Információk (pl. származási hely, feldolgozás, tanúsítványok)"
+                                        outlined dense dark
+                                        rows="2"
+                                        class="mt-2"
+                                        placeholder="Pl. Magyarország, Zala megye, helyi kitermelés, kézi hántolás."
+                                    ></v-textarea>
+                                    <div class="gemini-button-container">
+                                        <v-btn small color="primary" @click="getSustainabilityReport()" :loading="isLoadingSustainabilityReport" :disabled="isLoadingSustainabilityReport || !productDetails.sustainabilityInfo.trim()">
+                                            <v-icon left small>mdi-leaf</v-icon>
+                                            ✨ Fenntarthatósági Jelentés Kérése
+                                        </v-btn>
+                                    </div>
+                                    <p v-if="sustainabilityReportError" class="mt-2 red--text text--darken-2">{{ sustainabilityReportError }}</p>
+                                    <v-card v-if="sustainabilityReportResponse" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Fenntarthatósági Értékelés:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ sustainabilityReportResponse }}</v-card-text>
+                                    </v-card>
+
+
+                                    <v-textarea
+                                        v-model="productDetails.notes"
+                                        label="Megjegyzés (opcionális)"
+                                        outlined dense dark
+                                        rows="3"
+                                        class="mt-2"
+                                    ></v-textarea>
+                                    <div class="gemini-button-container">
+                                        <v-btn small color="primary" class="mr-2" @click="generateProductNote" :loading="isGeneratingNote" :disabled="isGeneratingNote">
+                                            <v-icon left small>mdi-creation</v-icon>
+                                            ✨ Automatikus megjegyzés
+                                        </v-btn>
+                                        <v-btn small color="primary" class="mr-2" @click="translateProductDescription" :loading="isLoadingTranslation" :disabled="isLoadingTranslation || !productDetails.notes.trim()">
+                                            <v-icon left small>mdi-translate</v-icon>
+                                            ✨ Fordítás Angolra
+                                        </v-btn>
+                                        <v-btn small color="primary" class="mr-2" @click="getProductKeywordSuggestions" :loading="isLoadingKeywordSuggestion" :disabled="isLoadingKeywordSuggestion || !productDetails.notes.trim()">
+                                            <v-icon left small>mdi-tag-heart-outline</v-icon>
+                                            ✨ Kulcsszó/Címke Javaslatok
+                                        </v-btn>
+                                    </div>
+                                    <p v-if="generatedNoteError" class="mt-2 red--text text--darken-2">{{ generatedNoteError }}</p>
+                                    <v-card v-if="translatedProductDescription" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Által Fordított Angol Leírás:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ translatedProductDescription }}</v-card-text>
+                                    </v-card>
+                                    <p v-if="translationError" class="mt-2 red--text text--darken-2">{{ translationError }}</p>
+                                     <p v-if="keywordSuggestionError" class="mt-2 red--text text--darken-2">{{ keywordSuggestionError }}</p>
+                                    <v-card v-if="keywordSuggestions.length > 0" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Kulcsszó/Címke Javaslatok:</v-card-title>
+                                        <v-card-text>
+                                            <v-chip v-for="(keyword, i) in keywordSuggestions" :key="i" class="ma-1" color="primary" outlined>
+                                                {{keyword}}
+                                            </v-chip>
+                                        </v-card-text>
+                                    </v-card>
+
+
+                                     <div class="gemini-button-container">
+                                        <v-btn small color="primary" class="mr-2" @click="generateMarketingSnippet" :loading="isLoadingMarketingSnippet" :disabled="isLoadingMarketingSnippet || !productDetails.diameterFrom || !productDetails.length || !productDetails.quantity">
+                                            <v-icon left small>mdi-bullhorn-outline</v-icon>
+                                            ✨ Marketing Szöveg Generálása
+                                        </v-btn>
+                                         <v-btn small color="primary" @click="generateProductDataSheetSuggestions" :loading="isLoadingDataSheetSuggestion" :disabled="isLoadingDataSheetSuggestion || !productDetails.diameterFrom || !productDetails.length || !productDetails.quantity">
+                                            <v-icon left small>mdi-file-document-plus-outline</v-icon>
+                                            ✨ Adatlap Kitöltési Javaslatok
+                                        </v-btn>
+                                    </div>
+                                    <p v-if="marketingSnippetError" class="mt-2 red--text text--darken-2">{{ marketingSnippetError }}</p>
+                                    <v-card v-if="marketingSnippetResponse" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Marketing Szöveg Javaslat:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ marketingSnippetResponse }}</v-card-text>
+                                    </v-card>
+                                    <p v-if="dataSheetSuggestionError" class="mt-2 red--text text--darken-2">{{ dataSheetSuggestionError }}</p>
+                                    <v-card v-if="dataSheetSuggestionResponse" class="api-response-card my-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-1">AI Adatlap Kitöltési Javaslatok:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ dataSheetSuggestionResponse }}</v-card-text>
+                                    </v-card>
+                                    
+
+                                    <p v-if="productDetails.calculatedVolume !== null" class="mt-4 calculation-result">
+                                        Számított köbméter: {{ productDetails.calculatedVolume.toFixed(3) }} m³
+                                         <span v-if="productDetails.quantity > 0 && productDetails.calculatedVolume > 0">
+                                            ({{ (productDetails.calculatedVolume / productDetails.quantity).toFixed(4) }} m³/db)
+                                        </span>
+                                    </p>
+                                    <p v-if="calculationError" class="mt-2 red--text text--darken-2">{{ calculationError }}</p>
+
+                                    <v-btn color="success" class="mt-4" @click="submitStock">Készlet Feltöltése</v-btn>
+                                    <v-btn text color="grey darken-1" class="mt-4 ml-2" @click="resetForm('stockForm')">Űrlap Törlése</v-btn>
+                                </v-form>
+                            </template>
+                            <template v-else-if="currentPage === 'Vevői Igények Kezelése' && currentUserRole === 'admin'">
+                                <h1 class="text-h4 mb-4">{{ currentPageTitle }}</h1>
+                                <p class="body-1 mb-2">
+                                    Itt az adminisztrátor áttekintheti a vevői igényeket, és AI segítségével összefoglalót és trendelemzést kérhet.
+                                </p>
+                                <p class="caption mb-4">Megjegyzés: Az alábbi igények listája jelenleg csak demonstrációs célokat szolgál.</p>
+                                <v-list three-line class="mb-4" dark>
+                                    <template v-for="(demand, index) in mockDemandsForAnalysis">
+                                        <v-list-item :key="demand.id">
+                                            <v-list-item-avatar>
+                                                <v-icon :color="demand.iconColor || 'blue-grey'">{{ demand.icon || 'mdi-account-question' }}</v-icon>
+                                            </v-list-item-avatar>
+                                            <v-list-item-content>
+                                                <v-list-item-title>{{ demand.item }} - {{ demand.quantity }}</v-list-item-title>
+                                                <v-list-item-subtitle>Specifikáció: {{ demand.specs }}</v-list-item-subtitle>
+                                                <v-list-item-subtitle>Igény ID: {{ demand.id }} | Dátum: {{ demand.date }}</v-list-item-subtitle>
+                                            </v-list-item-content>
+                                        </v-list-item>
+                                        <v-divider v-if="index < mockDemandsForAnalysis.length - 1" :key="'divider-' + demand.id" inset></v-divider>
+                                    </template>
+                                </v-list>
+                                <div class="gemini-button-container mt-4">
+                                     <v-btn 
+                                        color="primary"
+                                        @click="getDemandAnalysis"
+                                        :loading="isLoadingDemandAnalysis"
+                                        :disabled="isLoadingDemandAnalysis"
+                                    >
+                                        <v-icon left>mdi-chart-bar</v-icon>
+                                        ✨ Igények Összegzése és Trendek Feltárása
+                                    </v-btn>
+                                </div>
+                                <p v-if="demandAnalysisError" class="mt-2 red--text text--darken-2">{{ demandAnalysisError }}</p>
+                                <v-card v-if="demandAnalysisResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Igényelemzési Összefoglaló:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ demandAnalysisResponse }}</v-card-text>
+                                </v-card>
+                                 <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!demandAnalysisResponse && !isLoadingDemandAnalysis">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+                            <template v-else-if="currentPage === 'Gyártói Készletek Kezelése' && currentUserRole === 'admin'">
+                                <h1 class="text-h4 mb-4">{{ currentPageTitle }}</h1>
+                                <p class="body-1 mb-2">
+                                    Itt az adminisztrátor áttekintheti a gyártói készleteket, és AI segítségével optimalizálási javaslatokat, valamint termékkategorizálást kérhet.
+                                </p>
+                                <p class="caption mb-4">Megjegyzés: Az alábbi készletlista és a termékleírás mező jelenleg csak demonstrációs célokat szolgál.</p>
+                                <v-list three-line class="mb-4" dark>
+                                    <template v-for="(stock, index) in mockStocksForOptimization">
+                                        <v-list-item :key="stock.id">
+                                             <v-list-item-avatar>
+                                                <v-icon :color="stock.iconColor || 'blue-grey'">{{ stock.icon || 'mdi-storefront-outline' }}</v-icon>
+                                            </v-list-item-avatar>
+                                            <v-list-item-content>
+                                                <v-list-item-title>{{ stock.item }} - {{ stock.quantity }}</v-list-item-title>
+                                                <v-list-item-subtitle>Specifikáció: {{ stock.specs }} | Helyszín: {{ stock.location }}</v-list-item-subtitle>
+                                                <v-list-item-subtitle>Készlet ID: {{ stock.id }} | Utolsó frissítés: {{ stock.lastUpdated }}</v-list-item-subtitle>
+                                            </v-list-item-content>
+                                        </v-list-item>
+                                        <v-divider v-if="index < mockStocksForOptimization.length - 1" :key="'divider-stock-' + stock.id" inset></v-divider>
+                                    </template>
+                                </v-list>
+                                <div class="gemini-button-container mt-4">
+                                     <v-btn 
+                                        color="primary"
+                                        @click="getStockOptimizationSuggestions"
+                                        :loading="isLoadingStockOptimization"
+                                        :disabled="isLoadingStockOptimization"
+                                    >
+                                        <v-icon left>mdi-cogs</v-icon>
+                                        ✨ Készlet Optimalizálási Javaslatok Kérése
+                                    </v-btn>
+                                </div>
+                                <p v-if="stockOptimizationError" class="mt-2 red--text text--darken-2">{{ stockOptimizationError }}</p>
+                                <v-card v-if="stockOptimizationResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Készletoptimalizálási Javaslatok:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ stockOptimizationResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Termékkategorizálási Javaslat</h2>
+                                <v-textarea
+                                    v-model="productDescriptionForCategorization"
+                                    label="Termékleírás elemzéshez"
+                                    placeholder="Pl.: 'Kézzel hántolt, szijácsmart akácfa oszlop, 12-16 cm átmérő, 3 méter hossz, friss vágás.'"
+                                    outlined
+                                    rows="3"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getCategorySuggestion" 
+                                        :loading="isLoadingCategorization" 
+                                        :disabled="isLoadingCategorization || !productDescriptionForCategorization.trim()"
+                                    >
+                                        <v-icon left>mdi-tag-plus-outline</v-icon>
+                                        ✨ Termékkategória Javaslat
+                                    </v-btn>
+                                </div>
+                                <p v-if="categorizationError" class="mt-2 red--text text--darken-2">{{ categorizationError }}</p>
+                                <v-card v-if="categorizationSuggestion" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Kategória Javaslat:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ categorizationSuggestion }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Fenntarthatósági Értékelés (Admin)</h2>
+                                <v-textarea
+                                    v-model="adminSustainabilityInfo"
+                                    label="Termék fenntarthatósági információi elemzéshez"
+                                    placeholder="Adja meg a termék eredetét, feldolgozási módját, tanúsítványait stb."
+                                    outlined
+                                    rows="3"
+                                    auto-grow
+                                    dense
+                                    dark
+                                ></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getSustainabilityReportAdmin" 
+                                        :loading="isLoadingSustainabilityReportAdmin" 
+                                        :disabled="isLoadingSustainabilityReportAdmin || !adminSustainabilityInfo.trim()"
+                                    >
+                                        <v-icon left>mdi-leaf-circle-outline</v-icon>
+                                        ✨ Fenntarthatósági Értékelés Kérése (Admin)
+                                    </v-btn>
+                                </div>
+                                <p v-if="sustainabilityReportAdminError" class="mt-2 red--text text--darken-2">{{ sustainabilityReportAdminError }}</p>
+                                <v-card v-if="sustainabilityReportAdminResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Fenntarthatósági Értékelés:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ sustainabilityReportAdminResponse }}</v-card-text>
+                                </v-card>
+
+                                 <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!stockOptimizationResponse && !isLoadingStockOptimization && !categorizationSuggestion && !isLoadingCategorization && !sustainabilityReportAdminResponse && !isLoadingSustainabilityReportAdmin">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+                             <template v-else-if="currentPage === 'Összevezetések'">
+                                <h1 class="text-h4 mb-4">{{ currentPageTitle }}</h1>
+                                <p class="body-1 mb-2">
+                                    Itt az adminisztrátor AI segítségével javaslatokat kaphat a vevői igények és gyártói készletek összevezetésére, valamint vitás esetekben is kérhet tanácsot.
+                                </p>
+                                
+                                <v-divider class="my-4"></v-divider>
+                                <h2 class="text-h5 mb-3">Kereslet-Kínálat Összevezetési Javaslatok</h2>
+                                <p class="caption mb-4">Megjegyzés: Az alábbi adatok jelenleg csak demonstrációs célokat szolgálnak.</p>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <h3 class="text-h6 mb-2">Jelenlegi Vevői Igények (Példa)</h3>
+                                        <v-card outlined class="pa-3 mb-3 mock-data-display" v-for="demand in mockDemands" :key="'demand-' + demand.id">
+                                            <dl>
+                                                <dt>Azonosító:</dt> <dd>{{demand.id}}</dd>
+                                                <dt>Termék:</dt> <dd>{{demand.item}}</dd>
+                                                <dt>Méret:</dt> <dd>{{demand.specs}}</dd>
+                                                <dt>Mennyiség:</dt> <dd>{{demand.quantity}}</dd>
+                                            </dl>
+                                        </v-card>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <h3 class="text-h6 mb-2">Jelenlegi Gyártói Készletek (Példa)</h3>
+                                         <v-card outlined class="pa-3 mb-3 mock-data-display" v-for="stock in mockStocks" :key="'stock-' + stock.id">
+                                            <dl>
+                                                <dt>Azonosító:</dt> <dd>{{stock.id}}</dd>
+                                                <dt>Termék:</dt> <dd>{{stock.item}}</dd>
+                                                <dt>Méret:</dt> <dd>{{stock.specs}}</dd>
+                                                <dt>Mennyiség:</dt> <dd>{{stock.quantity}}</dd>
+                                            </dl>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                                
+                                <div class="gemini-button-container mt-4">
+                                     <v-btn 
+                                        color="primary"
+                                        @click="getMatchingSuggestions"
+                                        :loading="isLoadingMatchingSuggestions"
+                                        :disabled="isLoadingMatchingSuggestions"
+                                    >
+                                        <v-icon left>mdi-auto-fix</v-icon>
+                                        ✨ Javaslatok generálása összevezetésre
+                                    </v-btn>
+                                </div>
+                                <p v-if="matchingSuggestionsError" class="mt-2 red--text text--darken-2">{{ matchingSuggestionsError }}</p>
+                                <v-card v-if="matchingSuggestionsResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Összevezetési Javaslatai:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ matchingSuggestionsResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6"></v-divider>
+                                <h2 class="text-h5 mb-3">AI Vitarendezési Javaslattevő</h2>
+                                 <v-text-field v-model="disputeDetails.orderId" label="Érintett Rendelés/Termék ID" outlined dense dark></v-text-field>
+                                <v-textarea v-model="disputeDetails.buyerClaim" label="Vevő Panasza / Álláspontja" outlined rows="3" dense dark></v-textarea>
+                                <v-textarea v-model="disputeDetails.manufacturerResponse" label="Gyártó Válasza / Álláspontja" outlined rows="3" dense dark></v-textarea>
+                                <div class="gemini-button-container">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getDisputeResolutionSuggestion"
+                                        :loading="isLoadingDisputeSuggestion"
+                                        :disabled="isLoadingDisputeSuggestion || !disputeDetails.buyerClaim.trim() || !disputeDetails.manufacturerResponse.trim()"
+                                    >
+                                        <v-icon left>mdi-gavel</v-icon>
+                                        ✨ Vitarendezési Javaslat Kérése
+                                    </v-btn>
+                                </div>
+                                <p v-if="disputeSuggestionError" class="mt-2 red--text text--darken-2">{{ disputeSuggestionError }}</p>
+                                <v-card v-if="disputeSuggestionResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Vitarendezési Javaslata(i):</v-card-title>
+                                    <v-card-text class="api-response-content">{{ disputeSuggestionResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!matchingSuggestionsResponse && !isLoadingMatchingSuggestions && !disputeSuggestionResponse && !isLoadingDisputeSuggestion">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+
+                            <template v-else-if="currentPage === 'Kamion Tervezés'">
+                                <h1 class="text-h4 mb-4">{{ currentPageTitle }}</h1>
+                                <p class="body-1 mb-6">
+                                    Adja meg a kamion kapacitását, válassza ki a szállítandó tételeket az AI alapú rakodási tervhez, és kérjen hozzávetőleges költségbecslést.
+                                </p>
+                                <v-text-field
+                                    v-model.number="truckCapacity"
+                                    label="Kamion Kapacitása (m³)"
+                                    type="number"
+                                    outlined
+                                    dense
+                                    dark
+                                    suffix="m³"
+                                    class="mb-4"
+                                    :rules="[v => v > 0 || 'Pozitív szám szükséges']"
+                                ></v-text-field>
+
+                                <h3 class="text-h6 mb-2">Szállítandó Tételek (Példa)</h3>
+                                <v-row>
+                                    <v-col cols="12" md="6" v-for="item in mockItemsToLoad" :key="item.id">
+                                        <v-card outlined class="pa-3 item-to-load-card">
+                                            <v-checkbox
+                                                v-model="selectedItemsToLoad"
+                                                :label="`${item.id} - ${item.description} (${item.volume_m3} m³)`"
+                                                :value="item"
+                                                hide-details
+                                                dark
+                                            ></v-checkbox>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                                
+                                <div class="gemini-button-container mt-6">
+                                    <v-btn 
+                                        color="primary"
+                                        @click="getTruckLoadingPlan"
+                                        :loading="isLoadingTruckPlan"
+                                        :disabled="isLoadingTruckPlan || !truckCapacity || selectedItemsToLoad.length === 0"
+                                    >
+                                        <v-icon left>mdi-clipboard-text-play-outline</v-icon>
+                                        ✨ Optimális Rakodási Terv Generálása
+                                    </v-btn>
+                                </div>
+                                <p v-if="truckPlanError" class="mt-2 red--text text--darken-2">{{ truckPlanError }}</p>
+                                <v-card v-if="truckLoadingPlanResponse" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Rakodási Terv Javaslata:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ truckLoadingPlanResponse }}</v-card-text>
+                                </v-card>
+
+                                <v-divider class="my-6" v-if="truckLoadingPlanResponse"></v-divider>
+                                <template v-if="truckLoadingPlanResponse">
+                                    <h2 class="text-h5 mb-3">AI Logisztikai Költségbecslő / Fuvaroptimalizálási Tippek</h2>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                v-model.number="logisticsDetails.distanceKm"
+                                                label="Hozzávetőleges Távolság (km)"
+                                                type="number"
+                                                outlined dense dark suffix="km"
+                                                :rules="[v => v > 0 || 'Pozitív szám']"
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                v-model="logisticsDetails.truckType"
+                                                :items="['Normál (ponyvás)', 'Nagyobb (önkihordós)', 'Kisebb (fix platós)']"
+                                                label="Kamion Típusa (hozzávetőleges)"
+                                                outlined dense dark
+                                            ></v-select>
+                                        </v-col>
+                                    </v-row>
+                                     <div class="gemini-button-container">
+                                        <v-btn 
+                                            color="primary"
+                                            @click="getLogisticsCostEstimate"
+                                            :loading="isLoadingLogisticsCost"
+                                            :disabled="isLoadingLogisticsCost || !logisticsDetails.distanceKm"
+                                            class="mr-2"
+                                        >
+                                            <v-icon left>mdi-currency-eur</v-icon>
+                                            ✨ Költségbecslés
+                                        </v-btn>
+                                         <v-btn 
+                                            color="primary"
+                                            @click="getTransportOptimizationTips"
+                                            :loading="isLoadingTransportTips"
+                                            :disabled="isLoadingTransportTips"
+                                        >
+                                            <v-icon left>mdi-lightbulb-on-outline</v-icon>
+                                            ✨ Fuvaroptimalizálási Tippek
+                                        </v-btn>
+                                    </div>
+                                    <p v-if="logisticsCostError" class="mt-2 red--text text--darken-2">{{ logisticsCostError }}</p>
+                                    <v-card v-if="logisticsCostResponse" class="api-response-card" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Költségbecslési Faktorok:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ logisticsCostResponse }}</v-card-text>
+                                    </v-card>
+                                     <p v-if="transportTipsError" class="mt-2 red--text text--darken-2">{{ transportTipsError }}</p>
+                                    <v-card v-if="transportTipsResponse" class="api-response-card mt-3" outlined>
+                                        <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Fuvaroptimalizálási Tippek:</v-card-title>
+                                        <v-card-text class="api-response-content">{{ transportTipsResponse }}</v-card-text>
+                                    </v-card>
+                                </template>
+
+                                <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!truckLoadingPlanResponse && !isLoadingTruckPlan && !logisticsCostResponse && !isLoadingLogisticsCost && !transportTipsResponse && !isLoadingTransportTips">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+
+                            <template v-else-if="currentPage === 'Szállítási Sablonok'">
+                                <h1 class="text-h4 mb-4">{{ currentPageTitle }}</h1>
+                                <p class="body-1 mb-2">
+                                    Itt az adminisztrátor fuvarozási e-mail vázlatokat generálhat és adatokat ellenőriztethet az AI segítségével.
+                                </p>
+                                <v-form ref="carrierEmailForm">
+                                    <v-text-field v-model="carrierEmailDetails.carrierName" label="Fuvarozó Neve" outlined dense dark :rules="[v => !!v || 'Kötelező mező']"></v-text-field>
+                                    <v-text-field v-model="carrierEmailDetails.truckLicensePlate" label="Kamion Rendszáma" outlined dense dark :rules="[v => !!v || 'Kötelező mező']"></v-text-field>
+                                    <v-text-field v-model="carrierEmailDetails.loadingLocation" label="Felrakó Helye" outlined dense dark :rules="[v => !!v || 'Kötelező mező']"></v-text-field>
+                                    <v-textarea v-model="carrierEmailDetails.deliveryLocations" label="Lerakó Helyek (vesszővel elválasztva, címmel)" outlined dense dark rows="2" :rules="[v => !!v || 'Kötelező mező']"></v-textarea>
+                                    <v-textarea v-model="carrierEmailDetails.materialDescription" label="Szállítandó Anyag (rövid leírás, pl. 24m3 akác oszlop)" outlined dense dark rows="2" :rules="[v => !!v || 'Kötelező mező']"></v-textarea>
+                                    <v-textarea v-model="carrierEmailDetails.fullDocumentText" label="Vagy illesszen be ide egy meglévő fuvarlevél szöveget elemzéshez" outlined dense dark rows="4" class="mt-2"></v-textarea>
+                                    
+                                    <div class="gemini-button-container mt-4">
+                                        <v-btn 
+                                            color="primary"
+                                            @click="generateCarrierEmailDraft" 
+                                            :loading="isLoadingEmailDraft" 
+                                            :disabled="isLoadingEmailDraft"
+                                            class="mr-2"
+                                        >
+                                            <v-icon left>mdi-email-edit-outline</v-icon>
+                                            ✨ E-mail vázlat generálása
+                                        </v-btn>
+                                        <v-btn 
+                                            color="primary"
+                                            @click="checkShippingDocument" 
+                                            :loading="isLoadingShippingDocCheck" 
+                                            :disabled="isLoadingShippingDocCheck || (!carrierEmailDetails.materialDescription.trim() && !carrierEmailDetails.fullDocumentText.trim())"
+                                        >
+                                            <v-icon left>mdi-file-document-check-outline</v-icon>
+                                            ✨ Fuvarlevél Adatellenőrzés
+                                        </v-btn>
+                                    </div>
+                                </v-form>
+                                <p v-if="emailDraftError" class="mt-2 red--text text--darken-2">{{ emailDraftError }}</p>
+                                <v-card v-if="generatedEmailDraft" class="api-response-card" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">Generált E-mail Vázlat:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ generatedEmailDraft }}</v-card-text>
+                                     <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn text color="primary" @click="copyToClipboard(generatedEmailDraft)">Vágólapra másolás</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                                <p v-if="shippingDocCheckError" class="mt-2 red--text text--darken-2">{{ shippingDocCheckError }}</p>
+                                <v-card v-if="shippingDocCheckResponse" class="api-response-card mt-3" outlined>
+                                    <v-card-title class="text-subtitle-1 font-weight-medium pb-2">AI Fuvarlevél Ellenőrzési Javaslatok:</v-card-title>
+                                    <v-card-text class="api-response-content">{{ shippingDocCheckResponse }}</v-card-text>
+                                </v-card>
+                                 <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto" v-if="!generatedEmailDraft && !isLoadingEmailDraft && !shippingDocCheckResponse && !isLoadingShippingDocCheck">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+                            
+                            <template v-else> <h1 class="text-h4">{{ currentPageTitle }}</h1>
+                                <p class="mt-4 body-1">
+                                    Ez egy helykitöltő oldal a "{{ currentPageTitle }}" funkció számára.
+                                    <br>
+                                    A tartalom később kerül hozzáadásra.
+                                </p>
+                                <v-icon size="100" color="grey lighten-2" class="mt-10 d-block mx-auto">
+                                    {{ getPlaceholderIcon(currentPage) }}
+                                </v-icon>
+                            </template>
+                        </v-card>
+                    </v-container>
+                </v-main>
+            </template>
+
+            <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="snackbar.timeout" bottom right>
+                {{ snackbar.text }}
+                <template v-slot:action="{ attrs }">
+                    <v-btn text v-bind="attrs" @click="snackbar.show = false" style="color: var(--dark-navy)">Bezárás</v-btn>
+                </template>
+            </v-snackbar>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script type="module">
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "YOUR_API_KEY", 
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        let app;
+        let auth;
+        let db;
+
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log("Firebase initialized successfully.");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pohi-ai-app-default';
+
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify({
+                theme: {
+                    dark: true, // Enable dark theme
+                    themes: {
+                        dark: {
+                            primary: '#64FFDA', // green-accent
+                            secondary: '#CCD6F6', // lightest-slate (for text on dark)
+                            accent: '#64FFDA',
+                            error: '#FF5252',
+                            info: '#2196F3',
+                            success: '#64FFDA', // Use primary for success as well
+                            warning: '#FFC107',
+                            anchor: '#64FFDA',
+                            background: '#0A192F' // dark-navy
+                        }
+                    }
+                }
+            }),
+            data: {
+                drawer: null, 
+                currentUserRole: null, 
+                selectedRole: null,
+                roles: [
+                    { name: 'Adminisztrátor', value: 'admin' },
+                    { name: 'Vevő', value: 'buyer' },
+                    { name: 'Gyártó', value: 'manufacturer' }
+                ],
+                currentPage: 'Irányítópult', 
+                currentPageTitle: 'Irányítópult',
+                userId: null, 
+                productDetails: {
+                    diameterType: 'Középátmérő', diameterFrom: null, diameterTo: null, length: null, quantity: null, notes: '', price: '', calculatedVolume: null, sustainabilityInfo: ''
+                },
+                calculationError: null,
+                isGeneratingNote: false, 
+                generatedNoteError: null, 
+                
+                marketInfoQuery: '',
+                isLoadingMarketInfo: false,
+                marketInfoResponse: null,
+                marketInfoError: null,
+
+                faqQuery: '',
+                isLoadingFaqAnswer: false,
+                faqAnswerResponse: null,
+                faqAnswerError: null,
+
+                carrierEmailDetails: {
+                    carrierName: '', truckLicensePlate: '', loadingLocation: '', deliveryLocations: '', materialDescription: '', fullDocumentText: ''
+                },
+                isLoadingEmailDraft: false,
+                generatedEmailDraft: null,
+                emailDraftError: null,
+
+                mockDemands: [
+                    { id: 'D001', item: 'Akác szíjácsmart oszlop', specs: '14-18cm középátmérő, 4m hossz', quantity: '50 db (kb. 2.5 m³)' },
+                    { id: 'D002', item: 'Akác csiszolt oszlop', specs: '10-12cm csúcsátmérő, 3m hossz', quantity: '100 db (kb. 2.0 m³)' },
+                    { id: 'D003', item: 'Akác fűrészáru', specs: '2.5cm vastag, 15cm széles, 2.5m hossz', quantity: '5 m³' }
+                ],
+                mockStocks: [
+                    { id: 'S001', item: 'Akác szíjácsmart oszlop', specs: '16-20cm középátmérő, 4m hossz', quantity: '30 db (kb. 1.8 m³)', location: 'Zalaegerszeg' },
+                    { id: 'S002', item: 'Akác csiszolt oszlop', specs: '10-14cm csúcsátmérő, 3m hossz', quantity: '80 db (kb. 1.9 m³)', location: 'Nagykanizsa' },
+                    { id: 'S003', item: 'Akác szíjácsmart oszlop', specs: '12-16cm középátmérő, 4m hossz', quantity: '60 db (kb. 2.7 m³)', location: 'Keszthely' }
+                ],
+                isLoadingMatchingSuggestions: false,
+                matchingSuggestionsResponse: null,
+                matchingSuggestionsError: null,
+
+                isLoadingPriceSuggestion: false,
+                aiPriceSuggestion: null,
+                priceSuggestionError: null,
+
+                truckCapacity: 24, 
+                mockItemsToLoad: [ 
+                    { id: 'T001', description: 'D001 Igény (Oszlop 14-18cm, 4m)', volume_m3: 2.5, type: 'demand' },
+                    { id: 'T002', description: 'S002 Készlet (Oszlop 10-14cm, 3m)', volume_m3: 1.9, type: 'stock' },
+                    { id: 'T003', description: 'D003 Igény (Fűrészáru)', volume_m3: 5.0, type: 'demand' },
+                    { id: 'T004', description: 'S001 Készlet (Oszlop 16-20cm, 4m)', volume_m3: 1.8, type: 'stock' },
+                    { id: 'T005', description: 'D002 Igény (Oszlop 10-12cm, 3m)', volume_m3: 2.0, type: 'demand' },
+                    { id: 'T006', description: 'S003 Készlet (Oszlop 12-16cm, 4m)', volume_m3: 2.7, type: 'stock' },
+                ],
+                selectedItemsToLoad: [],
+                isLoadingTruckPlan: false,
+                truckLoadingPlanResponse: null,
+                truckPlanError: null,
+
+                mockDemandsForAnalysis: [ 
+                    { id: 'DA001', item: 'Akác szíjácsmart oszlop', specs: '14-18cm középátmérő, 4m hossz', quantity: '50 db', date: '2024-05-10', icon: 'mdi-pine-tree', iconColor: 'green darken-1'},
+                    { id: 'DA002', item: 'Akác csiszolt oszlop', specs: '10-12cm csúcsátmérő, 3m hossz', quantity: '100 db', date: '2024-05-12', icon: 'mdi-pine-tree-box', iconColor: 'brown lighten-1'},
+                    { id: 'DA003', item: 'Akác fűrészáru', specs: '2.5cm vastag, 15cm széles, 2.5m hossz', quantity: '5 m³', date: '2024-05-15', icon: 'mdi-view-grid-outline', iconColor: 'blue-grey'},
+                    { id: 'DA004', item: 'Akác szíjácsmart oszlop', specs: '16-20cm középátmérő, 5m hossz', quantity: '25 db', date: '2024-05-18', icon: 'mdi-pine-tree', iconColor: 'green darken-1'},
+                    { id: 'DA005', item: 'Akác csiszolt oszlop', specs: '12-14cm csúcsátmérő, 3m hossz', quantity: '70 db', date: '2024-05-20', icon: 'mdi-pine-tree-box', iconColor: 'brown lighten-1'},
+                ],
+                isLoadingDemandAnalysis: false,
+                demandAnalysisResponse: null,
+                demandAnalysisError: null,
+
+                isLoadingAlternatives: false,
+                alternativeProductsResponse: null,
+                alternativeProductsError: null,
+
+                mockStocksForOptimization: [
+                    { id: 'SO001', item: 'Akác szíjácsmart oszlop', specs: '10-12cm közép, 2.5m', quantity: '150 db', location: 'Raktár A', lastUpdated: '2024-04-01', icon: 'mdi-store', iconColor: 'orange darken-2' },
+                    { id: 'SO002', item: 'Akác csiszolt oszlop', specs: '18-22cm közép, 4m', quantity: '20 db', location: 'Raktár B', lastUpdated: '2024-05-15', icon: 'mdi-store-edit', iconColor: 'deep-purple accent-1' },
+                    { id: 'SO003', item: 'Akác fűrészáru (deszka)', specs: '2cmx10cmx3m', quantity: '15 m³', location: 'Raktár A', lastUpdated: '2024-05-01', icon: 'mdi-view-grid-plus-outline', iconColor: 'light-blue darken-3' },
+                    { id: 'SO004', item: 'Akác karó (hegyezett)', specs: '6-8cm, 2m', quantity: '500 db', location: 'Raktár C', lastUpdated: '2024-03-10', icon: 'mdi-multiplication', iconColor: 'red darken-1' },
+                ],
+                isLoadingStockOptimization: false,
+                stockOptimizationResponse: null,
+                stockOptimizationError: null,
+
+                communicationTarget: 'Vevő', 
+                communicationScenario: '',
+                isLoadingCommunicationDraft: false,
+                communicationDraftResponse: null,
+                communicationDraftError: null,
+
+                productDescriptionForCategorization: '',
+                isLoadingCategorization: false,
+                categorizationSuggestion: null,
+                categorizationError: null,
+
+                isLoadingMarketingSnippet: false,
+                marketingSnippetResponse: null,
+                marketingSnippetError: null,
+
+                disputeDetails: {
+                    orderId: '',
+                    buyerClaim: '',
+                    manufacturerResponse: ''
+                },
+                isLoadingDisputeSuggestion: false,
+                disputeSuggestionResponse: null,
+                disputeSuggestionError: null,
+
+                logisticsDetails: {
+                    distanceKm: null,
+                    truckType: 'Normál (ponyvás)', 
+                },
+                isLoadingLogisticsCost: false,
+                logisticsCostResponse: null,
+                logisticsCostError: null,
+
+                isLoadingTransportTips: false,
+                transportTipsResponse: null,
+                transportTipsError: null,
+
+                customerFeedbackText: '',
+                isLoadingFeedbackAnalysis: false,
+                feedbackAnalysisResponse: null,
+                feedbackAnalysisError: null,
+
+                isLoadingSustainabilityReport: false, 
+                sustainabilityReportResponse: null,
+                sustainabilityReportError: null,
+                adminSustainabilityInfo: '', 
+                isLoadingSustainabilityReportAdmin: false,
+                sustainabilityReportAdminResponse: null,
+                sustainabilityReportAdminError: null,
+
+                regionalDemandForecast: {
+                    region: null,
+                    productType: null,
+                },
+                isLoadingRegionalDemand: false,
+                regionalDemandResponse: null,
+                regionalDemandError: null,
+
+                isLoadingShippingDocCheck: false,
+                shippingDocCheckResponse: null,
+                shippingDocCheckError: null,
+
+                translatedProductDescription: '',
+                isLoadingTranslation: false,
+                translationError: null,
+
+                isLoadingComparison: false,
+                comparisonResponse: null,
+                comparisonError: null,
+
+                textContentForGuidelineCheck: '',
+                isLoadingGuidelineCheck: false,
+                guidelineCheckResponse: null,
+                guidelineCheckError: null,
+
+                newFeatureDescriptionForFaq: '',
+                isLoadingNewFeatureFaq: false,
+                newFeatureFaqResponse: null,
+                newFeatureFaqError: null,
+
+                isLoadingKeywordSuggestion: false,
+                keywordSuggestions: [],
+                keywordSuggestionError: null,
+
+                isLoadingDataSheetSuggestion: false,
+                dataSheetSuggestionResponse: null,
+                dataSheetSuggestionError: null,
+
+                isLoadingMarketNews: false,
+                marketNewsResponse: null,
+                marketNewsError: null,
+
+
+                snackbar: {
+                    show: false, text: '', color: 'info', timeout: 3000
+                },
+                placeholderIcons: {
+                    'Irányítópult': 'mdi-chart-areaspline', 
+                    'Felhasználók Kezelése': 'mdi-account-shield-outline', 
+                    'Vevői Igények Kezelése': 'mdi-clipboard-text-search-outline', 
+                    'Gyártói Készletek Kezelése': 'mdi-store-search-outline', 
+                    'Összevezetések': 'mdi-handshake-outline', 
+                    'Kamion Tervezés': 'mdi-truck-fast-outline', 
+                    'Szállítási Sablonok': 'mdi-file-document-edit-outline', 
+                    'Igényeim': 'mdi-format-list-bulleted-type',
+                    'Készleteim': 'mdi-archive-outline',
+                    'Profilom': 'mdi-account-cog-outline',
+                    'default': 'mdi-file-question-outline'
+                }
+            },
+            computed: {
+                currentUserRoleName() {
+                    const role = this.roles.find(r => r.value === this.currentUserRole);
+                    return role ? role.name : 'Ismeretlen Szerepkör';
+                }
+            },
+            methods: {
+                // ... (meglévő metódusok itt változatlanul) ...
+                async login() {
+                    if (!this.selectedRole) {
+                        this.showSnackbar('Kérjük, válasszon szerepkört!', 'error');
+                        return;
+                    }
+                    this.currentUserRole = this.selectedRole;
+                    this.navigateTo('Irányítópult'); 
+                    
+                    if (auth) {
+                        try {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                await auth.signInWithCustomToken(__initial_auth_token);
+                            } else {
+                                await auth.signInAnonymously();
+                            }
+                            this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
+                            this.showSnackbar(`Sikeres bejelentkezés mint ${this.currentUserRoleName}. User ID: ${this.userId}`, 'success');
+                        } catch (error) {
+                            console.error("Firebase login error:", error);
+                            this.userId = crypto.randomUUID();
+                            this.showSnackbar(`Firebase bejelentkezési hiba: ${error.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
+                        }
+                    } else {
+                         this.userId = crypto.randomUUID();
+                         this.showSnackbar('Firebase nincs inicializálva. Folytatás offline módban.', 'warning');
+                    }
+                    this.resetAllFormsAndData();
+                },
+                logout() {
+                    if (auth && auth.currentUser) {
+                        auth.signOut().catch(error => console.error("Firebase sign out error:", error));
+                    }
+                    this.currentUserRole = null; this.selectedRole = null; this.userId = null;
+                    this.currentPage = 'Bejelentkezés'; this.currentPageTitle = 'Bejelentkezés';
+                    this.showSnackbar('Sikeresen kijelentkezett.', 'info');
+                },
+                 navigateTo(pageName) {
+                    this.currentPage = pageName; this.currentPageTitle = pageName;
+                    if (this.$vuetify.breakpoint.smAndDown && this.drawer) { this.drawer = false; } 
+                    
+                    this.resetAllGeminiStates(); 
+                    
+                    if (pageName !== 'Új Igény Leadása' && pageName !== 'Új Készlet Feltöltése') this.resetProductDetails();
+                    if (pageName !== 'Irányítópult' || this.currentUserRole !== 'admin') {
+                        this.resetMarketInfo();
+                        this.resetFaqAnswer();
+                        this.resetFeedbackAnalysis();
+                        this.resetRegionalDemandForecast();
+                        this.resetNewFeatureFaq();
+                        this.resetMarketNews();
+                    }
+                    if (pageName !== 'Szállítási Sablonok') {
+                        this.resetCarrierEmailDraft();
+                        this.resetShippingDocCheck();
+                    }
+                    if (pageName !== 'Összevezetések') {
+                        this.resetMatchingSuggestions();
+                        this.resetDisputeResolution();
+                    }
+                    if (pageName !== 'Új Készlet Feltöltése') {
+                        // These are handled by resetProductDetails if it runs
+                    } else { 
+                        this.resetPriceSuggestion();
+                        this.resetMarketingSnippet();
+                        this.resetSustainabilityReport(); 
+                        this.resetTranslation();
+                        this.resetKeywordSuggestion();
+                        this.resetDataSheetSuggestion();
+                    }
+                    if (pageName !== 'Kamion Tervezés') {
+                        this.resetTruckLoadingPlan();
+                        this.resetLogisticsCost();
+                        this.resetTransportTips();
+                    }
+                    if (pageName !== 'Vevői Igények Kezelése') { 
+                         this.resetDemandAnalysis();
+                    }
+                     if (pageName !== 'Új Igény Leadása') { 
+                         this.resetAlternativeProducts(); 
+                     }
+                    if (pageName !== 'Gyártói Készletek Kezelése') { 
+                        this.resetStockOptimization();
+                        this.resetCategorization();
+                        this.resetSustainabilityReportAdmin(); 
+                    }
+                    if (pageName !== 'Felhasználók Kezelése') { 
+                        this.resetCommunicationDraft();
+                        this.resetGuidelineCheck();
+                    }
+                },
+                resetAllFormsAndData() { // Called on login
+                    this.resetProductDetails(); 
+                    this.resetMarketInfo();
+                    this.resetCarrierEmailDraft();
+                    this.resetFaqAnswer();
+                    this.resetMatchingSuggestions();
+                    this.resetTruckLoadingPlan();
+                    this.resetDemandAnalysis();
+                    this.resetAlternativeProducts(); 
+                    this.resetStockOptimization();
+                    this.resetCommunicationDraft();
+                    this.resetCategorization();
+                    this.resetDisputeResolution();
+                    this.resetLogisticsCost();
+                    this.resetTransportTips();
+                    this.resetFeedbackAnalysis();
+                    this.resetSustainabilityReportAdmin();
+                    this.resetRegionalDemandForecast();
+                    this.resetShippingDocCheck();
+                    this.resetGuidelineCheck();
+                    this.resetNewFeatureFaq();
+                    this.resetMarketNews();
+                },
+                resetAllGeminiStates() { // Called on every navigation
+                    this.isGeneratingNote = false; this.generatedNoteError = null;
+                    this.isLoadingMarketInfo = false; this.marketInfoResponse = null; this.marketInfoError = null;
+                    this.isLoadingEmailDraft = false; this.generatedEmailDraft = null; this.emailDraftError = null;
+                    this.isLoadingFaqAnswer = false; this.faqAnswerResponse = null; this.faqAnswerError = null;
+                    this.isLoadingMatchingSuggestions = false; this.matchingSuggestionsResponse = null; this.matchingSuggestionsError = null;
+                    this.isLoadingPriceSuggestion = false; this.aiPriceSuggestion = null; this.priceSuggestionError = null;
+                    this.isLoadingTruckPlan = false; this.truckLoadingPlanResponse = null; this.truckPlanError = null;
+                    this.isLoadingDemandAnalysis = false; this.demandAnalysisResponse = null; this.demandAnalysisError = null;
+                    this.isLoadingAlternatives = false; this.alternativeProductsResponse = null; this.alternativeProductsError = null;
+                    this.isLoadingStockOptimization = false; this.stockOptimizationResponse = null; this.stockOptimizationError = null;
+                    this.isLoadingCommunicationDraft = false; this.communicationDraftResponse = null; this.communicationDraftError = null;
+                    this.isLoadingCategorization = false; this.categorizationSuggestion = null; this.categorizationError = null;
+                    this.isLoadingMarketingSnippet = false; this.marketingSnippetResponse = null; this.marketingSnippetError = null;
+                    this.isLoadingDisputeSuggestion = false; this.disputeSuggestionResponse = null; this.disputeSuggestionError = null;
+                    this.isLoadingLogisticsCost = false; this.logisticsCostResponse = null; this.logisticsCostError = null;
+                    this.isLoadingTransportTips = false; this.transportTipsResponse = null; this.transportTipsError = null;
+                    this.isLoadingFeedbackAnalysis = false; this.feedbackAnalysisResponse = null; this.feedbackAnalysisError = null;
+                    this.isLoadingSustainabilityReport = false; this.sustainabilityReportResponse = null; this.sustainabilityReportError = null;
+                    this.isLoadingSustainabilityReportAdmin = false; this.sustainabilityReportAdminResponse = null; this.sustainabilityReportAdminError = null;
+                    this.isLoadingRegionalDemand = false; this.regionalDemandResponse = null; this.regionalDemandError = null;
+                    this.isLoadingShippingDocCheck = false; this.shippingDocCheckResponse = null; this.shippingDocCheckError = null;
+                    this.isLoadingTranslation = false; this.translatedProductDescription = ''; this.translationError = null;
+                    this.isLoadingComparison = false; this.comparisonResponse = null; this.comparisonError = null;
+                    this.isLoadingGuidelineCheck = false; this.guidelineCheckResponse = null; this.guidelineCheckError = null;
+                    this.isLoadingNewFeatureFaq = false; this.newFeatureFaqResponse = null; this.newFeatureFaqError = null;
+                    this.isLoadingKeywordSuggestion = false; this.keywordSuggestions = []; this.keywordSuggestionError = null;
+                    this.isLoadingDataSheetSuggestion = false; this.dataSheetSuggestionResponse = null; this.dataSheetSuggestionError = null;
+                    this.isLoadingMarketNews = false; this.marketNewsResponse = null; this.marketNewsError = null;
+                },
+                calculateVolume() {
+                    this.calculationError = null;
+                    const { diameterFrom, diameterTo, length, quantity } = this.productDetails;
+                    if (diameterFrom > 0 && diameterTo > 0 && length > 0 && quantity > 0 && diameterTo >= diameterFrom) {
+                        const avgDiameterCm = (diameterFrom + diameterTo) / 2;
+                        const radiusM = avgDiameterCm / 200; 
+                        const volumePerPiece = Math.PI * Math.pow(radiusM, 2) * length;
+                        this.productDetails.calculatedVolume = volumePerPiece * quantity;
+                    } else {
+                        this.productDetails.calculatedVolume = null;
+                        if (diameterTo < diameterFrom && diameterFrom && diameterTo) {
+                             this.calculationError = "Az 'átmérő -ig' értéknek nagyobbnak vagy egyenlőnek kell lennie a '-tól' értéknél.";
+                        }
+                    }
+                },
+                async callGeminiAPI(promptText) {
+                    const chatHistory = [{ role: "user", parts: [{ text: promptText }] }];
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Gemini API error response:', errorData);
+                        throw new Error(`API hiba: ${response.status} ${response.statusText}. ${errorData?.error?.message || ''}`);
+                    }
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        return result.candidates[0].content.parts[0].text.trim();
+                    } else {
+                        console.error('Unexpected Gemini API response structure:', result);
+                        throw new Error('Nem sikerült a válasz generálása a várt formátumban.');
+                    }
+                },
+                async generateProductNote() {
+                    if (!this.productDetails.diameterFrom || !this.productDetails.diameterTo || !this.productDetails.length || !this.productDetails.quantity) {
+                        this.showSnackbar('Kérjük, adja meg az átmérőt, hosszt és darabszámot a megjegyzés generálásához!', 'warning', 4000);
+                        return;
+                    }
+                    this.isGeneratingNote = true; this.generatedNoteError = null; this.productDetails.notes = ''; 
+                    let prompt = `Generálj egy rövid, informatív megjegyzést egy fakereskedelmi termékhez (akác oszlop) a következő adatok alapján:\n`;
+                    prompt += `- Átmérő típusa: ${this.productDetails.diameterType}\n`;
+                    prompt += `- Átmérő tartomány: ${this.productDetails.diameterFrom} cm - ${this.productDetails.diameterTo} cm\n`;
+                    prompt += `- Hossz: ${this.productDetails.length} m\n`;
+                    prompt += `- Darabszám: ${this.productDetails.quantity} db\n`;
+                    if (this.productDetails.calculatedVolume) {
+                        prompt += `- Teljes becsült köbméter: ${this.productDetails.calculatedVolume.toFixed(3)} m³\n`;
+                    }
+                    prompt += `A megjegyzés legyen tömör, magyar nyelvű, legfeljebb 2-3 mondat. Koncentrálj a termék fő jellemzőire. Kerüld a túlzó jelzőket, maradj tárgyilagos. Például: "Szíjácsmart akác oszlopok, a megadott méretekben." vagy "Csiszolt felületű akác oszlopok, nagyobb tételben."\n`;
+                    prompt += `A generált megjegyzés:`;
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.productDetails.notes = generatedText;
+                        this.showSnackbar('Megjegyzés sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.generatedNoteError = `Hiba a megjegyzés generálásakor: ${error.message}`;
+                        this.showSnackbar(this.generatedNoteError, 'error', 5000);
+                    } finally { this.isGeneratingNote = false; }
+                },
+                async getMarketInsights() {
+                    if (!this.marketInfoQuery.trim()) {
+                        this.showSnackbar('Kérjük, tegyen fel egy kérdést a piaci információkhoz!', 'warning'); return;
+                    }
+                    this.isLoadingMarketInfo = true; this.marketInfoError = null; this.marketInfoResponse = null;
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform adminisztrátora vagyok. Kérlek, adj egy rövid, informatív választ (max. 3-5 mondat) a következő kérdésre az akácfa piaccal kapcsolatban. Koncentrálj a magyarországi viszonyokra, ha lehetséges. A kérdés: "${this.marketInfoQuery}"\nFontos: Ne adj pénzügyi tanácsot, csak általános piaci információkat vagy trendeket említs, ha releváns.\nAz információ legyen magyar nyelvű.`;
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.marketInfoResponse = generatedText;
+                        this.showSnackbar('Piaci információ sikeresen lekérve! ✨', 'success');
+                    } catch (error) {
+                        this.marketInfoError = `Hiba a piaci információk lekérésekor: ${error.message}`;
+                        this.showSnackbar(this.marketInfoError, 'error', 5000);
+                    } finally { this.isLoadingMarketInfo = false; }
+                },
+                async getFaqAnswer() {
+                    if (!this.faqQuery.trim()) {
+                        this.showSnackbar('Kérjük, tegyen fel egy kérdést a GYIK válasz generálásához!', 'warning'); return;
+                    }
+                    this.isLoadingFaqAnswer = true; this.faqAnswerError = null; this.faqAnswerResponse = null;
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Kérlek, generálj egy rövid, segítőkész és barátságos választ (max 2-4 mondat) a következő gyakori felhasználói kérdésre. A válasz legyen magyar nyelvű, és a Pohi AI App kontextusában értelmezhető.\nA felhasználó kérdése: "${this.faqQuery}"\nA generált válasz:`;
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.faqAnswerResponse = generatedText;
+                        this.showSnackbar('GYIK válasz sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.faqAnswerError = `Hiba a GYIK válasz generálásakor: ${error.message}`;
+                        this.showSnackbar(this.faqAnswerError, 'error', 5000);
+                    } finally { this.isLoadingFaqAnswer = false; }
+                },
+                async generateCarrierEmailDraft() {
+                    if (!this.$refs.carrierEmailForm.validate()) {
+                         this.showSnackbar('Kérjük, töltse ki az összes kötelező mezőt az e-mail vázlat generálásához!', 'warning', 4000); return;
+                    }
+                    this.isLoadingEmailDraft = true; this.emailDraftError = null; this.generatedEmailDraft = null;
+                    const details = this.carrierEmailDetails;
+                    let prompt = `Készíts egy professzionális, magyar nyelvű e-mail vázlatot egy fuvarozó számára a következő szállítási adatok alapján:\n`;
+                    prompt += `- Fuvarozó megszólítása (ha a név ismert, használd, egyébként általános): ${details.carrierName}\n`;
+                    prompt += `- Kamion rendszáma: ${details.truckLicensePlate}\n`;
+                    prompt += `- Felrakó helye (cím): ${details.loadingLocation}\n`;
+                    prompt += `- Lerakó helyek (címek, lehet több is): ${details.deliveryLocations}\n`;
+                    prompt += `- Szállítandó anyag rövid leírása: ${details.materialDescription}\n`;
+                    prompt += `Az e-mail tartalmazza a legfontosabb információkat, legyen udvarias és egyértelmű. Kérjen visszaigazolást a fuvarral kapcsolatban. Az aláírás legyen "Pohi AI App Logisztika".\n`;
+                    prompt += `Az e-mail tárgya legyen: "Fuvarmegbízás - ${details.materialDescription} - ${details.truckLicensePlate}"\n`;
+                    prompt += `A generált e-mail vázlat (tárgy nélkül, csak a törzsszöveg):`;
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.generatedEmailDraft = `Tárgy: Fuvarmegbízás - ${details.materialDescription} - ${details.truckLicensePlate}\n\n${generatedText}`;
+                        this.showSnackbar('E-mail vázlat sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.emailDraftError = `Hiba az e-mail vázlat generálásakor: ${error.message}`;
+                        this.showSnackbar(this.emailDraftError, 'error', 5000);
+                    } finally { this.isLoadingEmailDraft = false; }
+                },
+                async getMatchingSuggestions() {
+                    this.isLoadingMatchingSuggestions = true;
+                    this.matchingSuggestionsError = null;
+                    this.matchingSuggestionsResponse = null;
+
+                    const demandsString = JSON.stringify(this.mockDemands.map(d => ({azonosito: d.id, igeny: d.item, leiras: d.specs, mennyiseg: d.quantity})), null, 2);
+                    const stocksString = JSON.stringify(this.mockStocks.map(s => ({azonosito: s.id, keszlet: s.item, leiras: s.specs, mennyiseg: s.quantity, hely: s.location})), null, 2);
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Adottak a következő vevői igények és gyártói készletek (JSON formátumban). Kérlek, elemezd ezeket, és adj tömör, magyar nyelvű javaslatokat a lehetséges összevezetésekre, vagy emelj ki olyan igényeket/készleteket, amelyekre érdemes fókuszálni. Ne listázd újra az összes adatot, csak a lényegi javaslatokat írd le pár pontban.\n\n`;
+                    prompt += `Vevői Igények:\n${demandsString}\n\n`;
+                    prompt += `Gyártói Készletek:\n${stocksString}\n\n`;
+                    prompt += `Javaslatok az összevezetésre (magyarul, pár pontban):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.matchingSuggestionsResponse = generatedText;
+                        this.showSnackbar('Összevezetési javaslatok sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.matchingSuggestionsError = `Hiba az összevezetési javaslatok generálásakor: ${error.message}`;
+                        this.showSnackbar(this.matchingSuggestionsError, 'error', 6000);
+                    } finally {
+                        this.isLoadingMatchingSuggestions = false;
+                    }
+                },
+                async getAIPriceSuggestion() {
+                    if (!this.productDetails.diameterFrom || !this.productDetails.diameterTo || !this.productDetails.length || !this.productDetails.quantity) {
+                        this.showSnackbar('Kérjük, adja meg a termék főbb paramétereit (átmérők, hossz, darabszám) az árjavaslathoz!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingPriceSuggestion = true;
+                    this.priceSuggestionError = null;
+                    this.aiPriceSuggestion = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform gyártói felületén vagyok. Kérek egy tájékoztató jellegű árjavaslatot a következő akác oszlop termékre. Az árjavaslat legyen magyar nyelvű, és próbáljon meg EUR/m³ vagy Ft/db (vagy mindkettő) formátumban becslést adni, általános piaci ismeretek alapján (nem szükséges valós idejű adat, csak egy logikus becslés a megadott paraméterek alapján). Hangsúlyozd, hogy ez csak egy becslés.\n`;
+                    prompt += `Termék: Akác oszlop (${this.productDetails.diameterType})\n`;
+                    prompt += `- Átmérő: ${this.productDetails.diameterFrom} - ${this.productDetails.diameterTo} cm\n`;
+                    prompt += `- Hossz: ${this.productDetails.length} m\n`;
+                    prompt += `- Darabszám: ${this.productDetails.quantity} db\n`;
+                    if (this.productDetails.calculatedVolume) {
+                        prompt += `- Becsült teljes köbméter: ${this.productDetails.calculatedVolume.toFixed(3)} m³\n`;
+                    }
+                    prompt += `Kérlek, adj egy rövid, indikatív árjavaslatot erre a tételre. Például: "Becsült ár: X EUR/m³ vagy Y Ft/db. Ez egy tájékoztató jellegű becslés."`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.aiPriceSuggestion = generatedText;
+                        this.showSnackbar('AI árjavaslat sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.priceSuggestionError = `Hiba az árjavaslat generálásakor: ${error.message}`;
+                        this.showSnackbar(this.priceSuggestionError, 'error', 5000);
+                    } finally {
+                        this.isLoadingPriceSuggestion = false;
+                    }
+                },
+                async getTruckLoadingPlan() {
+                    if (!this.truckCapacity || this.truckCapacity <= 0) {
+                        this.showSnackbar('Kérjük, adja meg a kamion érvényes kapacitását!', 'warning', 4000);
+                        return;
+                    }
+                    if (this.selectedItemsToLoad.length === 0) {
+                        this.showSnackbar('Kérjük, válasszon ki legalább egy szállítandó tételt!', 'warning', 4000);
+                        return;
+                    }
+
+                    this.isLoadingTruckPlan = true;
+                    this.truckPlanError = null;
+                    this.truckLoadingPlanResponse = null;
+
+                    const itemsToLoadString = JSON.stringify(this.selectedItemsToLoad.map(item => ({ id: item.id, leiras: item.description, kobmeter: item.volume_m3 })), null, 2);
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform adminisztrátora vagyok, és egy kamion rakodási tervét szeretném optimalizálni. Adott a kamion kapacitása és a lehetséges szállítandó tételek listája (köbméterben megadva).\n`;
+                    prompt += `Kamion kapacitása: ${this.truckCapacity} m³\n\n`;
+                    prompt += `Szállítandó tételek (melyekből válogathatunk):\n${itemsToLoadString}\n\n`;
+                    prompt += `Kérlek, adj egy magyar nyelvű javaslatot arra, hogy mely tételeket és milyen sorrendben lenne érdemes felrakodni a kamionra a kapacitás lehető legjobb kihasználása érdekében. A javaslat legyen lista formátumú, és tüntesd fel a teljes felhasznált kapacitást is. Ha nem fér fel minden, jelezd, mi maradt ki. Priorizáld a minél nagyobb össz-köbméter felrakodását a kapacitáshatáron belül.\nPl.:\n1. T001 (2.5 m³)\n2. T003 (5.0 m³)\n...\nTeljesen felrakodott: X.X m³\nKimaradt: T00Y (Z.Z m³)\n`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.truckLoadingPlanResponse = generatedText;
+                        this.showSnackbar('Rakodási terv javaslat sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.truckPlanError = `Hiba a rakodási terv generálásakor: ${error.message}`;
+                        this.showSnackbar(this.truckPlanError, 'error', 6000);
+                    } finally {
+                        this.isLoadingTruckPlan = false;
+                    }
+                },
+                async getDemandAnalysis() {
+                    this.isLoadingDemandAnalysis = true;
+                    this.demandAnalysisError = null;
+                    this.demandAnalysisResponse = null;
+
+                    const demandsForAnalysisString = JSON.stringify(this.mockDemandsForAnalysis.map(d => ({
+                        azonosito: d.id,
+                        termek: d.item,
+                        specifikacio: d.specs,
+                        mennyiseg: d.quantity,
+                        datum: d.date
+                    })), null, 2);
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Adottak a következő vevői igények egy rövid időszakról (JSON formátumban). Kérlek, elemezd ezeket, és készíts egy rövid, magyar nyelvű összefoglalót (max. 3-4 pontban) a legfontosabb trendekről vagy kiugró igényekről. Például: melyik terméktípusra, méretre van nagyobb kereslet, vagy van-e valamilyen szokatlan igény.\n\n`;
+                    prompt += `Vevői Igények Listája:\n${demandsForAnalysisString}\n\n`;
+                    prompt += `Összefoglaló és Trendelemzés (magyarul, pár pontban):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.demandAnalysisResponse = generatedText;
+                        this.showSnackbar('Igényelemzés sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.demandAnalysisError = `Hiba az igényelemzés generálásakor: ${error.message}`;
+                        this.showSnackbar(this.demandAnalysisError, 'error', 6000);
+                    } finally {
+                        this.isLoadingDemandAnalysis = false;
+                    }
+                },
+                async getAlternativeProducts() {
+                    if (!this.productDetails.diameterFrom || !this.productDetails.diameterTo || !this.productDetails.length) {
+                        this.showSnackbar('Kérjük, adja meg a termék főbb paramétereit (átmérők, hossz) az alternatívák kereséséhez!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingAlternatives = true;
+                    this.alternativeProductsError = null;
+                    this.alternativeProductsResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) vevői felületén vagyok. A vevő a következő akác oszlopot keresi:\n`;
+                    prompt += `- Átmérő típusa: ${this.productDetails.diameterType}\n`;
+                    prompt += `- Átmérő: ${this.productDetails.diameterFrom} - ${this.productDetails.diameterTo} cm\n`;
+                    prompt += `- Hossz: ${this.productDetails.length} m\n`;
+                    prompt += `Kérlek, adj 2-3 rövid, magyar nyelvű javaslatot alternatív akácfa termékekre, ha a pontosan ilyen termék nem elérhető, vagy ha a vevő nyitott más lehetőségekre. A javaslatok legyenek konkrétak, pl. kissé eltérő méret, más típusú megmunkálás (pl. csiszolt helyett szíjácsmart), vagy hasonló felhasználási célú egyéb akác termék. Adj rövid indoklást is, miért lehet jó alternatíva.\nPl.:\n- Fontolja meg a X-Y cm átmérőjű, Z méter hosszú szíjácsmart oszlopokat is, ezek gyakran kedvezőbb áron elérhetők.\n- Esetleg Z-W méter hosszúságú csiszolt oszlop is megfelelhet, ha a hosszúságban van némi rugalmasság.\n`;
+                    prompt += `Alternatívák javaslata (magyarul, 2-3 pontban):`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.alternativeProductsResponse = generatedText;
+                        this.showSnackbar('Alternatíva javaslatok sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.alternativeProductsError = `Hiba az alternatívák generálásakor: ${error.message}`;
+                        this.showSnackbar(this.alternativeProductsError, 'error', 5000);
+                    } finally {
+                        this.isLoadingAlternatives = false;
+                    }
+                },
+                async getStockOptimizationSuggestions() {
+                    this.isLoadingStockOptimization = true;
+                    this.stockOptimizationError = null;
+                    this.stockOptimizationResponse = null;
+
+                    const stocksForOptimizationString = JSON.stringify(this.mockStocksForOptimization.map(s => ({
+                        azonosito: s.id,
+                        termek: s.item,
+                        specifikacio: s.specs,
+                        mennyiseg: s.quantity,
+                        helyszin: s.location,
+                        utolso_frissites: s.lastUpdated
+                    })), null, 2);
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Adottak a következő gyártói készletek (JSON formátumban). Kérlek, elemezd ezeket, és készíts egy rövid, magyar nyelvű összefoglalót (max. 3-4 pontban) a készletoptimalizálási javaslatokról. Például: mely termékekből van túlkészlet, melyekből hiány, melyek mozognak lassan (az utolsó frissítés dátuma alapján), vagy mely termékek promóciójára lenne érdemes fókuszálni.\n\n`;
+                    prompt += `Gyártói Készletek Listája:\n${stocksForOptimizationString}\n\n`;
+                    prompt += `Készletoptimalizálási Javaslatok (magyarul, pár pontban):`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.stockOptimizationResponse = generatedText;
+                        this.showSnackbar('Készletoptimalizálási javaslatok sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.stockOptimizationError = `Hiba a készletoptimalizálási javaslatok generálásakor: ${error.message}`;
+                        this.showSnackbar(this.stockOptimizationError, 'error', 6000);
+                    } finally {
+                        this.isLoadingStockOptimization = false;
+                    }
+                },
+                async generateCommunicationDraft() {
+                    if (!this.communicationTarget || !this.communicationScenario.trim()) {
+                        this.showSnackbar('Kérjük, válassza ki a címzett típusát és adja meg a kommunikációs forgatókönyvet!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingCommunicationDraft = true;
+                    this.communicationDraftError = null;
+                    this.communicationDraftResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Kérlek, generálj egy udvarias és professzionális magyar nyelvű üzenetvázlatot a következő forgatókönyv alapján. A címzett egy ${this.communicationTarget}.\n\n`;
+                    prompt += `Forgatókönyv / Üzenet Célja:\n${this.communicationScenario}\n\n`;
+                    prompt += `Az üzenet legyen tömör, egyértelmű és a helyzetnek megfelelő hangvételű. Az aláírás legyen "Pohi AI App Ügyfélszolgálat".\n`;
+                    prompt += `Generált Üzenetvázlat:`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.communicationDraftResponse = generatedText;
+                        this.showSnackbar('Üzenetvázlat sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.communicationDraftError = `Hiba az üzenetvázlat generálásakor: ${error.message}`;
+                        this.showSnackbar(this.communicationDraftError, 'error', 6000);
+                    } finally {
+                        this.isLoadingCommunicationDraft = false;
+                    }
+                },
+                async getCategorySuggestion() {
+                    if (!this.productDescriptionForCategorization.trim()) {
+                        this.showSnackbar('Kérjük, adjon meg egy termékleírást a kategorizáláshoz!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingCategorization = true;
+                    this.categorizationError = null;
+                    this.categorizationSuggestion = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Adott a következő, felhasználó által megadott termékleírás. Kérlek, javasolj egy vagy több lehetséges, strukturált kategóriát erre a termékre. A kategória legyen magyar nyelvű, és tartalmazza a főbb jellemzőket, pl. "Akác oszlop, szíjácsmart, 10-14cm középátmérő, 3m hossz, I. osztály" vagy "Akác fűrészáru, deszka, 2.5x15cm, 2.5m hossz, kezeletlen".\n\n`;
+                    prompt += `Felhasználói Termékleírás:\n"${this.productDescriptionForCategorization}"\n\n`;
+                    prompt += `Javasolt Kategória/Kategóriák (magyarul, strukturáltan):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.categorizationSuggestion = generatedText;
+                        this.showSnackbar('Termékkategória javaslat sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.categorizationError = `Hiba a kategória javaslat generálásakor: ${error.message}`;
+                        this.showSnackbar(this.categorizationError, 'error', 6000);
+                    } finally {
+                        this.isLoadingCategorization = false;
+                    }
+                },
+                async generateMarketingSnippet() {
+                    if (!this.productDetails.diameterFrom || !this.productDetails.length || !this.productDetails.quantity) {
+                        this.showSnackbar('Kérjük, adja meg a termék főbb adatait (átmérő, hossz, darabszám) a marketing szöveg generálásához!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingMarketingSnippet = true;
+                    this.marketingSnippetError = null;
+                    this.marketingSnippetResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) gyártói felületén vagyok. A gyártó a következő akácfa terméket töltötte fel:\n`;
+                    prompt += `- Termék típusa (általános): Akác ${this.productDetails.diameterType === 'Középátmérő' || this.productDetails.diameterType === 'Csúcsátmérő' ? 'oszlop' : 'fűrészáru'}\n`;
+                    if (this.productDetails.diameterType) prompt += `- Átmérő típusa: ${this.productDetails.diameterType}\n`;
+                    if (this.productDetails.diameterFrom && this.productDetails.diameterTo) prompt += `- Átmérő: ${this.productDetails.diameterFrom} - ${this.productDetails.diameterTo} cm\n`;
+                    if (this.productDetails.length) prompt += `- Hossz: ${this.productDetails.length} m\n`;
+                    if (this.productDetails.quantity) prompt += `- Rendelkezésre álló mennyiség: ${this.productDetails.quantity} db\n`;
+                    if (this.productDetails.notes) prompt += `- Gyártói megjegyzés: ${this.productDetails.notes}\n`;
+                    if (this.productDetails.price) prompt += `- Ár (ha megadva): ${this.productDetails.price}\n`;
+
+                    prompt += `Kérlek, generálj egy rövid (1-2 mondatos), figyelemfelkeltő magyar nyelvű marketing szöveget vagy közösségi média poszt-javaslatot ehhez a termékhez, amit a gyártó felhasználhat. Emelje ki a termék előnyeit vagy főbb jellemzőit. Kerülje a túlzásokat, legyen vonzó, de reális.\n`;
+                    prompt += `Például: "Frissen vágott akác oszlopok kaphatók! Ideális kerítésekhez, támrendszerekhez. Méretek: X-Y cm, Z méter. Rendeljen most, amíg a készlet tart!"\n`;
+                    prompt += `Generált Marketing Szöveg:`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.marketingSnippetResponse = generatedText;
+                        this.showSnackbar('Marketing szöveg sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.marketingSnippetError = `Hiba a marketing szöveg generálásakor: ${error.message}`;
+                        this.showSnackbar(this.marketingSnippetError, 'error', 6000);
+                    } finally {
+                        this.isLoadingMarketingSnippet = false;
+                    }
+                },
+                async getDisputeResolutionSuggestion() {
+                    if (!this.disputeDetails.buyerClaim.trim() || !this.disputeDetails.manufacturerResponse.trim()) {
+                        this.showSnackbar('Kérjük, adja meg a vevő panaszát és a gyártó válaszát a javaslathoz!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingDisputeSuggestion = true;
+                    this.disputeSuggestionError = null;
+                    this.disputeSuggestionResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok, és egy vitás ügyben kérek segítséget. A cél semleges, méltányos megoldási javaslat(ok) generálása.\n\n`;
+                    if(this.disputeDetails.orderId) prompt += `Érintett rendelés/termék ID (ha ismert): ${this.disputeDetails.orderId}\n`;
+                    prompt += `Vevő panasza/álláspontja:\n"${this.disputeDetails.buyerClaim}"\n\n`;
+                    prompt += `Gyártó válasza/álláspontja:\n"${this.disputeDetails.manufacturerResponse}"\n\n`;
+                    prompt += `Kérlek, adj 1-3 konkrét, magyar nyelvű javaslatot a vita lehetséges rendezésére, figyelembe véve mindkét fél álláspontját. A javaslatok legyenek konstruktívak és célravezetőek.\n`;
+                    prompt += `Például:\n- Javaslat: Részleges visszatérítés X% értékben a minőségi kifogás miatt.\n- Javaslat: A gyártó ajánljon fel egy csere terméket, a szállítási költséget megosztva.\n- Javaslat: Egy független szakértő bevonása a minőségellenőrzésre.\n\n`;
+                    prompt += `Generált Vitarendezési Javaslat(ok):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.disputeSuggestionResponse = generatedText;
+                        this.showSnackbar('Vitarendezési javaslat sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.disputeSuggestionError = `Hiba a vitarendezési javaslat generálásakor: ${error.message}`;
+                        this.showSnackbar(this.disputeSuggestionError, 'error', 6000);
+                    } finally {
+                        this.isLoadingDisputeSuggestion = false;
+                    }
+                },
+                async getLogisticsCostEstimate() {
+                    if (!this.logisticsDetails.distanceKm || this.logisticsDetails.distanceKm <= 0) {
+                        this.showSnackbar('Kérjük, adja meg az érvényes távolságot a költségbecsléshez!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingLogisticsCost = true;
+                    this.logisticsCostError = null;
+                    this.logisticsCostResponse = null;
+                    
+                    let cargoInfo = "Egy kamionnyi akácfa termék (pl. oszlopok, fűrészáru).";
+                    if (this.selectedItemsToLoad.length > 0) {
+                        const totalVolume = this.selectedItemsToLoad.reduce((sum, item) => sum + item.volume_m3, 0);
+                        cargoInfo = `${this.selectedItemsToLoad.length} tétel, összesen kb. ${totalVolume.toFixed(1)} m³ akácfa termék.`;
+                    } else if (this.truckCapacity) {
+                        cargoInfo = `Egy kamionnyi, kb. ${this.truckCapacity} m³ akácfa termék.`;
+                    }
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Kérek egy NAGYON HOZZÁVETŐLEGES, TÁJÉKOZTATÓ JELLEGŰ becslést vagy iránymutatást a logisztikai költségekre vonatkozóan a következő fuvarhoz. Nem pontos árajánlatra van szükségem, hanem inkább a főbb költségtényezők kiemelésére vagy egy nagyon általános nagyságrendi becslésre.\n\n`;
+                    prompt += `Szállítási Távolság: kb. ${this.logisticsDetails.distanceKm} km (Magyarországon belül)\n`;
+                    prompt += `Kamion Típusa (hozzávetőlegesen): ${this.logisticsDetails.truckType}\n`;
+                    prompt += `Rakomány: ${cargoInfo}\n\n`;
+                    prompt += `Kérlek, adj egy rövid, magyar nyelvű elemzést a várható költségtényezőkről, vagy egy nagyon általános becslést (pl. "X-Y Ft/km", vagy "ebben a kategóriában a költségek általában Z összeg körül mozoghatnak, de ez erősen függ..."). Hangsúlyozd, hogy ez csak egy durva becslés, és számos egyéb tényező befolyásolhatja (pl. útdíjak, aktuális üzemanyagárak, fuvarozói díjszabás).\n`;
+                    prompt += `Becslés / Költségtényezők Elemzése:`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.logisticsCostResponse = generatedText;
+                        this.showSnackbar('Logisztikai költségbecslés sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.logisticsCostError = `Hiba a költségbecslés generálásakor: ${error.message}`;
+                        this.showSnackbar(this.logisticsCostError, 'error', 6000);
+                    } finally {
+                        this.isLoadingLogisticsCost = false;
+                    }
+                },
+                 async getTransportOptimizationTips() {
+                    this.isLoadingTransportTips = true;
+                    this.transportTipsError = null;
+                    this.transportTipsResponse = null;
+
+                    let cargoDetails = "Egy általános kamionnyi akácfa rakomány.";
+                    if (this.selectedItemsToLoad.length > 0) {
+                        const totalVolume = this.selectedItemsToLoad.reduce((sum, item) => sum + item.volume_m3, 0);
+                        cargoDetails = `${this.selectedItemsToLoad.length} különböző tételből álló, összesen kb. ${totalVolume.toFixed(1)} m³ akácfa rakomány.`;
+                    } else if (this.truckCapacity) {
+                         cargoDetails = `Egy kb. ${this.truckCapacity} m³ kapacitású kamionnyi akácfa rakomány.`;
+                    }
+                    
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Egy fuvar optimalizálásához kérek általános, de hasznos tippeket. A fuvar részletei:\n`;
+                    prompt += `- Rakomány: ${cargoDetails}\n`;
+                    if (this.logisticsDetails.distanceKm) {
+                        prompt += `- Tervezett távolság: kb. ${this.logisticsDetails.distanceKm} km\n`;
+                    }
+                    if (this.logisticsDetails.truckType) {
+                        prompt += `- Kamion típusa (hozzávetőleges): ${this.logisticsDetails.truckType}\n`;
+                    }
+                    prompt += `Kérlek, adj 3-4 rövid, magyar nyelvű, gyakorlatias tippet a fuvar hatékonyságának növelésére és a költségek csökkentésére. Például: útvonaltervezés, visszfuvar keresése, rakodási idők optimalizálása, üzemanyag-takarékosság, stb.\n`;
+                    prompt += `Optimalizálási Tippek:`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.transportTipsResponse = generatedText;
+                        this.showSnackbar('Fuvaroptimalizálási tippek sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.transportTipsError = `Hiba a fuvaroptimalizálási tippek generálásakor: ${error.message}`;
+                        this.showSnackbar(this.transportTipsError, 'error', 6000);
+                    } finally {
+                        this.isLoadingTransportTips = false;
+                    }
+                },
+                async analyzeCustomerFeedback() {
+                    if (!this.customerFeedbackText.trim()) {
+                        this.showSnackbar('Kérjük, illesszen be vevői visszajelzéseket az elemzéshez!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingFeedbackAnalysis = true;
+                    this.feedbackAnalysisError = null;
+                    this.feedbackAnalysisResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Az alábbi szövegblokk vevői visszajelzéseket tartalmaz. Kérlek, elemezd ezeket, és készíts egy rövid, magyar nyelvű összefoglalót (max. 3-5 pontban) a következőkről:\n`;
+                    prompt += `1. Általános hangulat (pl. többnyire pozitív, vegyes, stb.).\n`;
+                    prompt += `2. Gyakran említett pozitívumok (ha vannak).\n`;
+                    prompt += `3. Gyakran említett negatívumok vagy fejlesztendő területek (ha vannak).\n`;
+                    prompt += `4. Főbb témák, amelyek megjelennek a visszajelzésekben.\n\n`;
+                    prompt += `Vevői Visszajelzések:\n---\n${this.customerFeedbackText}\n---\n\n`;
+                    prompt += `Elemzés és Összefoglaló (magyarul, pontokba szedve):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.feedbackAnalysisResponse = generatedText;
+                        this.showSnackbar('Vevői visszajelzések elemzése sikeres! ✨', 'success');
+                    } catch (error) {
+                        this.feedbackAnalysisError = `Hiba a visszajelzések elemzésekor: ${error.message}`;
+                        this.showSnackbar(this.feedbackAnalysisError, 'error', 6000);
+                    } finally {
+                        this.isLoadingFeedbackAnalysis = false;
+                    }
+                },
+                 async getSustainabilityReport(isAdmin = false) {
+                    let infoToAnalyze = '';
+                    let productTypeInfo = this.productDetails.diameterType ? `(${this.productDetails.diameterType})` : '(általános akác termék)';
+                    if (isAdmin) {
+                        if (!this.adminSustainabilityInfo.trim()) {
+                            this.showSnackbar('Kérjük, adja meg a termék fenntarthatósági információit az elemzéshez!', 'warning', 5000);
+                            return;
+                        }
+                        this.isLoadingSustainabilityReportAdmin = true;
+                        this.sustainabilityReportAdminError = null;
+                        this.sustainabilityReportAdminResponse = null;
+                        infoToAnalyze = this.adminSustainabilityInfo;
+                    } else { // Manufacturer
+                        if (!this.productDetails.sustainabilityInfo.trim()) {
+                            this.showSnackbar('Kérjük, adja meg a termék fenntarthatósági információit a jelentéshez!', 'warning', 5000);
+                            return;
+                        }
+                        this.isLoadingSustainabilityReport = true;
+                        this.sustainabilityReportError = null;
+                        this.sustainabilityReportResponse = null;
+                        infoToAnalyze = this.productDetails.sustainabilityInfo;
+                    }
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) számára kérek egy rövid, tájékoztató jellegű fenntarthatósági értékelést egy akácfa termékhez ${productTypeInfo}. Az értékelés legyen magyar nyelvű.\n\n`;
+                    prompt += `A termékkel kapcsolatos megadott információk (pl. származási hely, feldolgozás módja, tanúsítványok, stb.):\n"${infoToAnalyze}"\n\n`;
+                    prompt += `Kérlek, generálj egy rövid (2-4 mondatos) értékelést vagy egy egyszerűsített pontszámot (pl. A-E skálán, vagy leíró jelzőkkel mint "Kiváló", "Jó", "Átlagos", "Fejlesztendő", "Hiányos információ") a termék becsült fenntarthatóságáról a megadott információk alapján. Ha kevés az információ, azt is jelezd. Hangsúlyozd, hogy ez egy AI által generált, tájékoztató jellegű értékelés.\n`;
+                    prompt += `Például:\n- Értékelés: Jó. A helyi kitermelés és kézi feldolgozás kedvező, de további információk a faanyag eredetéről növelhetnék a megbízhatóságot.\n- Pontszám: B (Jó) - Valószínűleg fenntartható forrás, de tanúsítványok hiányoznak.\n\n`;
+                    prompt += `Generált Fenntarthatósági Értékelés:`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        if (isAdmin) {
+                            this.sustainabilityReportAdminResponse = generatedText;
+                        } else {
+                            this.sustainabilityReportResponse = generatedText;
+                        }
+                        this.showSnackbar('Fenntarthatósági értékelés sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        const errorMessage = `Hiba a fenntarthatósági értékelés generálásakor: ${error.message}`;
+                        if (isAdmin) {
+                            this.sustainabilityReportAdminError = errorMessage;
+                        } else {
+                            this.sustainabilityReportError = errorMessage;
+                        }
+                        this.showSnackbar(errorMessage, 'error', 6000);
+                    } finally {
+                        if (isAdmin) {
+                            this.isLoadingSustainabilityReportAdmin = false;
+                        } else {
+                            this.isLoadingSustainabilityReport = false;
+                        }
+                    }
+                },
+                getSustainabilityReportAdmin() { // Wrapper for admin button
+                    this.getSustainabilityReport(true);
+                },
+                async getRegionalDemandForecast() {
+                    if (!this.regionalDemandForecast.region || !this.regionalDemandForecast.productType) {
+                        this.showSnackbar('Kérjük, válassza ki a régiót és a terméktípust az előrejelzéshez!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingRegionalDemand = true;
+                    this.regionalDemandError = null;
+                    this.regionalDemandResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Kérek egy NAGYON ÁLTALÁNOS, HIPOTETIKUS keresleti előrejelzést a következő negyedévre.\n\n`;
+                    prompt += `Régió: ${this.regionalDemandForecast.region}, Magyarország\n`;
+                    prompt += `Terméktípus: ${this.regionalDemandForecast.productType}\n\n`;
+                    prompt += `Kérlek, adj egy rövid, magyar nyelvű, 2-3 mondatos becslést a várható keresleti trendekről (pl. növekvő, stagnáló, csökkenő kereslet) erre a termékre ebben a régióban. Az elemzés alapuljon általános gazdasági ismereteken és a faipar/építőipar feltételezett szezonális trendjein. Hangsúlyozd erősen, hogy ez egy AI által generált, NEM valós piaci adatokon alapuló, csupán tájékoztató jellegű becslés!\n`;
+                    prompt += `Például: "A ${this.regionalDemandForecast.productType} iránti kereslet ${this.regionalDemandForecast.region} régióban a következő negyedévben várhatóan [növekedni/stagnálni/csökkenni] fog, figyelembe véve [általános gazdasági helyzet/építőipari szezonalitás/stb.]. Ez egy AI által generált becslés, a tényleges piaci mozgások ettől eltérhetnek."\n\n`;
+                    prompt += `Generált Regionális Keresleti Előrejelzés (Becslés):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.regionalDemandResponse = generatedText;
+                        this.showSnackbar('Regionális keresleti előrejelzés sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.regionalDemandError = `Hiba a regionális keresleti előrejelzés generálásakor: ${error.message}`;
+                        this.showSnackbar(this.regionalDemandError, 'error', 6000);
+                    } finally {
+                        this.isLoadingRegionalDemand = false;
+                    }
+                },
+                async checkShippingDocument() {
+                    const contentToCheck = this.carrierEmailDetails.fullDocumentText.trim() || this.carrierEmailDetails.materialDescription.trim();
+                    if (!contentToCheck) {
+                        this.showSnackbar('Kérjük, adjon meg adatokat vagy szöveget a fuvarlevél ellenőrzéséhez!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingShippingDocCheck = true;
+                    this.shippingDocCheckError = null;
+                    this.shippingDocCheckResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Ellenőrizni szeretnék egy fuvarlevél-tervezetet vagy kapcsolódó adatokat. Kérlek, elemezd a következő szöveget/adatokat, és adj javaslatokat a hiányosságokra vagy potenciális problémákra. Koncentrálj a tipikus fuvarlevél adatokra (pl. feladó, címzett, árumegnevezés, mennyiség, dátumok, rendszám, aláírások szükségessége stb.).\n\n`;
+                    prompt += `Ellenőrizendő szöveg/adatok:\n---\n${contentToCheck}\n---\n\n`;
+                    prompt += `Javaslatok és Hiányosságok (magyarul, pontokba szedve):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.shippingDocCheckResponse = generatedText;
+                        this.showSnackbar('Fuvarlevél ellenőrzési javaslatok sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.shippingDocCheckError = `Hiba a fuvarlevél ellenőrzésekor: ${error.message}`;
+                        this.showSnackbar(this.shippingDocCheckError, 'error', 6000);
+                    } finally {
+                        this.isLoadingShippingDocCheck = false;
+                    }
+                },
+                async translateProductDescription() {
+                    if (!this.productDetails.notes.trim()) {
+                        this.showSnackbar('Kérjük, adjon meg egy termékleírást a fordításhoz (a "Megjegyzés" mezőben)!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingTranslation = true;
+                    this.translationError = null;
+                    this.translatedProductDescription = '';
+
+                    let prompt = `Fordítsd le a következő magyar nyelvű termékleírást angolra. A fordítás legyen természetes és a termék jellegének megfelelő.\n\nMagyar leírás:\n"${this.productDetails.notes}"\n\nAngol fordítás:`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.translatedProductDescription = generatedText;
+                        this.showSnackbar('Termékleírás sikeresen lefordítva angolra! ✨', 'success');
+                    } catch (error) {
+                        this.translationError = `Hiba a fordításkor: ${error.message}`;
+                        this.showSnackbar(this.translationError, 'error', 6000);
+                    } finally {
+                        this.isLoadingTranslation = false;
+                    }
+                },
+                 async getProductComparison() {
+                    if (!this.alternativeProductsResponse || !this.productDetails.diameterFrom) { 
+                        this.showSnackbar('Kérjük, először generáljon alternatívákat, és győződjön meg róla, hogy az eredeti igény adatai is meg vannak adva!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingComparison = true;
+                    this.comparisonError = null;
+                    this.comparisonResponse = null;
+
+                    let originalProductDesc = `Eredeti igény: Akác oszlop, ${this.productDetails.diameterType}, ${this.productDetails.diameterFrom}-${this.productDetails.diameterTo} cm átmérő, ${this.productDetails.length} m hossz.`;
+                    let alternativeProductDesc = `Javasolt alternatíva (első a listából): ${this.alternativeProductsResponse.split('\n')[0]}`;
+
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) vevői felületén vagyok. Kérem, hasonlítsa össze a következő két terméket/igényt, és emelje ki a főbb különbségeket, valamint az alternatíva potenciális előnyeit/hátrányait az eredetihez képest. Az összehasonlítás legyen rövid, magyar nyelvű és pontokba szedett.\n\n`;
+                    prompt += `1. Eredeti Igény:\n${originalProductDesc}\n\n`;
+                    prompt += `2. Javasolt Alternatíva:\n${alternativeProductDesc}\n\n`;
+                    prompt += `Összehasonlítás (különbségek, előnyök/hátrányok az alternatíva szempontjából):`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.comparisonResponse = generatedText;
+                        this.showSnackbar('Termék-összehasonlítás sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.comparisonError = `Hiba az összehasonlítás generálásakor: ${error.message}`;
+                        this.showSnackbar(this.comparisonError, 'error', 6000);
+                    } finally {
+                        this.isLoadingComparison = false;
+                    }
+                },
+                async checkContentGuidelines() {
+                    if (!this.textContentForGuidelineCheck.trim()) {
+                        this.showSnackbar('Kérjük, adjon meg szöveget az irányelvek ellenőrzéséhez!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingGuidelineCheck = true;
+                    this.guidelineCheckError = null;
+                    this.guidelineCheckResponse = null;
+
+                    let prompt = `Egy online piactér (Pohi AI App - akácfa kereskedelem) adminisztrátora vagyok. Kérlek, ellenőrizd a következő felhasználó által generált szöveget általános tartalmi irányelvek és jó gyakorlatok szempontjából. Adj visszajelzést magyarul, ha a szöveg tartalmazhat problémás részeket (pl. sértő, félrevezető, illegális tartalomra utaló, személyes adatokat nem megfelelően kezelő), vagy ha egyszerűen csak javítható a megfogalmazása a jobb érthetőség/professzionalizmus érdekében. Ha minden rendben, azt is jelezd.\n\n`;
+                    prompt += `Ellenőrizendő Szöveg:\n---\n${this.textContentForGuidelineCheck}\n---\n\n`;
+                    prompt += `Elemzés és Javaslatok:`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.guidelineCheckResponse = generatedText;
+                        this.showSnackbar('Tartalmi irányelvek ellenőrzése sikeres! ✨', 'success');
+                    } catch (error) {
+                        this.guidelineCheckError = `Hiba a tartalmi ellenőrzés során: ${error.message}`;
+                        this.showSnackbar(this.guidelineCheckError, 'error', 6000);
+                    } finally {
+                        this.isLoadingGuidelineCheck = false;
+                    }
+                },
+                async generateFaqForNewFeature() {
+                    if (!this.newFeatureDescriptionForFaq.trim()) {
+                        this.showSnackbar('Kérjük, adja meg az új funkció leírását a GYIK generálásához!', 'warning', 4000);
+                        return;
+                    }
+                    this.isLoadingNewFeatureFaq = true;
+                    this.newFeatureFaqError = null;
+                    this.newFeatureFaqResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. A platform a következő új funkcióval bővül:\n"${this.newFeatureDescriptionForFaq}"\n\nKérlek, generálj 2-3 releváns GYIK (Gyakran Ismételt Kérdés) kérdést és hozzájuk tartozó rövid, informatív, magyar nyelvű választ ezzel az új funkcióval kapcsolatban. A válaszok legyenek felhasználóbarátok.\nFormátum:\nK: [Kérdés 1]\nV: [Válasz 1]\n\nK: [Kérdés 2]\nV: [Válasz 2]\n...`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.newFeatureFaqResponse = generatedText;
+                        this.showSnackbar('GYIK az új funkcióhoz sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.newFeatureFaqError = `Hiba a GYIK generálásakor: ${error.message}`;
+                        this.showSnackbar(this.newFeatureFaqError, 'error', 6000);
+                    } finally {
+                        this.isLoadingNewFeatureFaq = false;
+                    }
+                },
+                async getProductKeywordSuggestions() {
+                    if (!this.productDetails.notes.trim() && (!this.productDetails.diameterFrom || !this.productDetails.length)) {
+                         this.showSnackbar('Kérjük, adjon meg termékleírást vagy főbb adatokat a kulcsszavakhoz!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingKeywordSuggestion = true;
+                    this.keywordSuggestionError = null;
+                    this.keywordSuggestions = [];
+
+                    let productInfo = `Termék típusa: Akác ${this.productDetails.diameterType === 'Középátmérő' || this.productDetails.diameterType === 'Csúcsátmérő' ? 'oszlop' : 'fűrészáru'}. `;
+                    if (this.productDetails.diameterFrom && this.productDetails.diameterTo) productInfo += `Átmérő: ${this.productDetails.diameterFrom}-${this.productDetails.diameterTo} cm. `;
+                    if (this.productDetails.length) productInfo += `Hossz: ${this.productDetails.length} m. `;
+                    if (this.productDetails.notes.trim()) productInfo += `Leírás: ${this.productDetails.notes}`;
+                    
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) gyártói felületén vagyok. A következő akácfa termékhez kérek kulcsszó/címke javaslatokat a jobb kereshetőség érdekében:\n\nTermék Információk:\n${productInfo}\n\nKérlek, javasolj 5-7 releváns, magyar nyelvű kulcsszót vagy címkét (tag-et). A javaslatok legyenek vesszővel elválasztva.\nPéldául: akácoszlop, kerítésoszlop, szíjácsmart, kerti faanyag, tartós fa`;
+
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.keywordSuggestions = generatedText.split(',').map(k => k.trim()).filter(k => k.length > 0);
+                        this.showSnackbar('Kulcsszó/címke javaslatok sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.keywordSuggestionError = `Hiba a kulcsszó javaslatok generálásakor: ${error.message}`;
+                        this.showSnackbar(this.keywordSuggestionError, 'error', 6000);
+                    } finally {
+                        this.isLoadingKeywordSuggestion = false;
+                    }
+                },
+                async generateProductDataSheetSuggestions() { 
+                    if (!this.productDetails.diameterFrom || !this.productDetails.length || !this.productDetails.quantity) {
+                        this.showSnackbar('Kérjük, adja meg a termék főbb adatait (átmérő, hossz, darabszám) a javaslatokhoz!', 'warning', 5000);
+                        return;
+                    }
+                    this.isLoadingDataSheetSuggestion = true;
+                    this.dataSheetSuggestionError = null;
+                    this.dataSheetSuggestionResponse = null;
+
+                    let productInfo = `Termék: Akác ${this.productDetails.diameterType === 'Középátmérő' || this.productDetails.diameterType === 'Csúcsátmérő' ? 'oszlop' : 'fűrészáru'}\n`;
+                    productInfo += `- Átmérő típusa: ${this.productDetails.diameterType}\n`;
+                    productInfo += `- Átmérő: ${this.productDetails.diameterFrom} - ${this.productDetails.diameterTo} cm\n`;
+                    productInfo += `- Hossz: ${this.productDetails.length} m\n`;
+                    productInfo += `- Mennyiség: ${this.productDetails.quantity} db\n`;
+                    if (this.productDetails.price) productInfo += `- Ár: ${this.productDetails.price}\n`;
+                    if (this.productDetails.sustainabilityInfo) productInfo += `- Fenntarthatósági info: ${this.productDetails.sustainabilityInfo}\n`;
+                    if (this.productDetails.notes) productInfo += `- Megjegyzés: ${this.productDetails.notes}\n`;
+
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) gyártói felületén vagyok. Segítséget kérek egy termék adatlap kitöltéséhez. Adottak a következő alapinformációk egy akácfa termékről:\n${productInfo}\n\nKérlek, javasolj magyarul 2-3 további releváns információt vagy mezőt, amit érdemes lenne kitölteni a termékadatlapon, hogy az minél teljesebb és informatívabb legyen a vevők számára. Adj példákat is a javasolt mezők lehetséges tartalmára.\nPéldául:\n- Felhasználási területek: Kerítésépítés, kerti támfalak, játszóterek.\n- Kezelési/Tárolási javaslatok: Száraz, szellős helyen tárolandó, közvetlen napfénytől védve.\n- Várható élettartam: Megfelelő kezelés mellett 15-20 év.\n\nJavaslatok az adatlap további kitöltésére:`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.dataSheetSuggestionResponse = generatedText;
+                        this.showSnackbar('Adatlap kitöltési javaslatok sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.dataSheetSuggestionError = `Hiba az adatlap kitöltési javaslatok generálásakor: ${error.message}`;
+                        this.showSnackbar(this.dataSheetSuggestionError, 'error', 6000);
+                    } finally {
+                        this.isLoadingDataSheetSuggestion = false;
+                    }
+                },
+                async getMarketNews() { 
+                    this.isLoadingMarketNews = true;
+                    this.marketNewsError = null;
+                    this.marketNewsResponse = null;
+
+                    let prompt = `Egy magyarországi akácfa kereskedelmi platform (Pohi AI App) adminisztrátora vagyok. Kérlek, generálj 2-3 rövid, aktuálisnak tűnő, magyar nyelvű piaci hírt vagy egy rövid összefoglalót az akácfa piaccal kapcsolatos általános (NEM valós idejű, csak szimulált) fejleményekről. A hírek legyenek tömörek és informatívak, mintha egy piaci elemzésből származnának.\nPéldául:\n- "Az elmúlt negyedévben stabil maradt az akác oszlopok iránti kereslet a hazai piacon, különösen a mezőgazdasági felhasználók körében."\n- "Az időjárási viszontagságok miatt egyes régiókban átmeneti fennakadások lehetnek a kitermelésben, ami befolyásolhatja a kínálatot a következő hetekben."\n- "Növekvő érdeklődés mutatkozik a tanúsított, fenntartható forrásból származó akác termékek iránt."\n\nGenerált Piaci Hírek/Összefoglaló:`;
+                    
+                    try {
+                        const generatedText = await this.callGeminiAPI(prompt);
+                        this.marketNewsResponse = generatedText;
+                        this.showSnackbar('Piaci hírek sikeresen generálva! ✨', 'success');
+                    } catch (error) {
+                        this.marketNewsError = `Hiba a piaci hírek generálásakor: ${error.message}`;
+                        this.showSnackbar(this.marketNewsError, 'error', 6000);
+                    } finally {
+                        this.isLoadingMarketNews = false;
+                    }
+                },
+                submitDemand() {
+                    if (this.$refs.demandForm.validate()) {
+                        console.log('Igény leadva (prototípus):', {...this.productDetails, generatedNoteByAI: !!this.productDetails.notes && !this.isGeneratingNote && !this.generatedNoteError, alternativeSuggestionUsed: !!this.alternativeProductsResponse});
+                        this.showSnackbar('Igény sikeresen leadva (prototípus)!', 'success');
+                        this.resetForm('demandForm');
+                    } else { this.showSnackbar('Kérjük, javítsa a hibákat az űrlapon!', 'error'); }
+                },
+                submitStock() {
+                     if (this.$refs.stockForm.validate()) {
+                        console.log('Készlet feltöltve (prototípus):', {...this.productDetails, generatedNoteByAI: !!this.productDetails.notes && !this.isGeneratingNote && !this.generatedNoteError, aiPriceSuggestion: this.aiPriceSuggestion, marketingSnippet: this.marketingSnippetResponse, sustainabilityReport: this.sustainabilityReportResponse, translatedDescription: this.translatedProductDescription, keywords: this.keywordSuggestions, dataSheetSuggestions: this.dataSheetSuggestionResponse});
+                        this.showSnackbar('Készlet sikeresen feltöltve (prototípus)!', 'success');
+                        this.resetForm('stockForm');
+                    } else { this.showSnackbar('Kérjük, javítsa a hibákat az űrlapon!', 'error'); }
+                },
+                resetForm(formRefName) {
+                    if (this.$refs[formRefName]) { this.$refs[formRefName].resetValidation(); }
+                    if (formRefName === 'demandForm' || formRefName === 'stockForm') this.resetProductDetails();
+                    else if (formRefName === 'carrierEmailForm') this.resetCarrierEmailDraft();
+                },
+                resetProductDetails() {
+                    this.productDetails = { diameterType: 'Középátmérő', diameterFrom: null, diameterTo: null, length: null, quantity: null, notes: '', price: '', calculatedVolume: null, sustainabilityInfo: '' };
+                    this.calculationError = null; this.isGeneratingNote = false; this.generatedNoteError = null;
+                    this.resetPriceSuggestion(); 
+                    this.resetAlternativeProducts(); 
+                    this.resetMarketingSnippet();
+                    this.resetSustainabilityReport(); 
+                    this.resetTranslation();
+                    this.resetKeywordSuggestion();
+                    this.resetDataSheetSuggestion();
+                },
+                resetMarketInfo() {
+                    this.marketInfoQuery = ''; this.isLoadingMarketInfo = false; this.marketInfoResponse = null; this.marketInfoError = null;
+                },
+                resetFaqAnswer() {
+                    this.faqQuery = ''; this.isLoadingFaqAnswer = false; this.faqAnswerResponse = null; this.faqAnswerError = null;
+                },
+                resetCarrierEmailDraft() {
+                    this.carrierEmailDetails = { carrierName: '', truckLicensePlate: '', loadingLocation: '', deliveryLocations: '', materialDescription: '', fullDocumentText: ''};
+                    this.isLoadingEmailDraft = false; this.generatedEmailDraft = null; this.emailDraftError = null;
+                     if (this.$refs.carrierEmailForm) { this.$refs.carrierEmailForm.resetValidation(); }
+                },
+                resetMatchingSuggestions() {
+                    this.isLoadingMatchingSuggestions = false; this.matchingSuggestionsResponse = null; this.matchingSuggestionsError = null;
+                },
+                resetPriceSuggestion() {
+                    this.isLoadingPriceSuggestion = false; this.aiPriceSuggestion = null; this.priceSuggestionError = null;
+                },
+                resetTruckLoadingPlan() {
+                    this.truckCapacity = 24; 
+                    this.selectedItemsToLoad = [];
+                    this.isLoadingTruckPlan = false;
+                    this.truckLoadingPlanResponse = null;
+                    this.truckPlanError = null;
+                },
+                 resetDemandAnalysis() {
+                    this.isLoadingDemandAnalysis = false;
+                    this.demandAnalysisResponse = null;
+                    this.demandAnalysisError = null;
+                },
+                resetAlternativeProducts() {
+                    this.isLoadingAlternatives = false;
+                    this.alternativeProductsResponse = null;
+                    this.alternativeProductsError = null;
+                    this.resetComparison(); 
+                },
+                resetStockOptimization() {
+                    this.isLoadingStockOptimization = false;
+                    this.stockOptimizationResponse = null;
+                    this.stockOptimizationError = null;
+                },
+                resetCommunicationDraft() {
+                    this.communicationTarget = 'Vevő';
+                    this.communicationScenario = '';
+                    this.isLoadingCommunicationDraft = false;
+                    this.communicationDraftResponse = null;
+                    this.communicationDraftError = null;
+                },
+                 resetCategorization() {
+                    this.productDescriptionForCategorization = '';
+                    this.isLoadingCategorization = false;
+                    this.categorizationSuggestion = null;
+                    this.categorizationError = null;
+                },
+                resetMarketingSnippet() {
+                    this.isLoadingMarketingSnippet = false;
+                    this.marketingSnippetResponse = null;
+                    this.marketingSnippetError = null;
+                },
+                resetDisputeResolution() {
+                    this.disputeDetails = { orderId: '', buyerClaim: '', manufacturerResponse: '' };
+                    this.isLoadingDisputeSuggestion = false;
+                    this.disputeSuggestionResponse = null;
+                    this.disputeSuggestionError = null;
+                },
+                resetLogisticsCost() {
+                    this.logisticsDetails = { distanceKm: null, truckType: 'Normál (ponyvás)'};
+                    this.isLoadingLogisticsCost = false;
+                    this.logisticsCostResponse = null;
+                    this.logisticsCostError = null;
+                },
+                resetTransportTips() {
+                    this.isLoadingTransportTips = false;
+                    this.transportTipsResponse = null;
+                    this.transportTipsError = null;
+                },
+                resetFeedbackAnalysis() {
+                    this.customerFeedbackText = '';
+                    this.isLoadingFeedbackAnalysis = false;
+                    this.feedbackAnalysisResponse = null;
+                    this.feedbackAnalysisError = null;
+                },
+                resetSustainabilityReport() { 
+                    this.isLoadingSustainabilityReport = false;
+                    this.sustainabilityReportResponse = null;
+                    this.sustainabilityReportError = null;
+                },
+                resetSustainabilityReportAdmin() { 
+                    this.adminSustainabilityInfo = '';
+                    this.isLoadingSustainabilityReportAdmin = false;
+                    this.sustainabilityReportAdminResponse = null;
+                    this.sustainabilityReportAdminError = null;
+                },
+                resetRegionalDemandForecast() {
+                    this.regionalDemandForecast = { region: null, productType: null };
+                    this.isLoadingRegionalDemand = false;
+                    this.regionalDemandResponse = null;
+                    this.regionalDemandError = null;
+                },
+                resetShippingDocCheck() {
+                    this.isLoadingShippingDocCheck = false;
+                    this.shippingDocCheckResponse = null;
+                    this.shippingDocCheckError = null;
+                },
+                resetTranslation() {
+                    this.isLoadingTranslation = false;
+                    this.translatedProductDescription = '';
+                    this.translationError = null;
+                },
+                resetComparison() {
+                    this.isLoadingComparison = false;
+                    this.comparisonResponse = null;
+                    this.comparisonError = null;
+                },
+                resetGuidelineCheck() {
+                    this.textContentForGuidelineCheck = '';
+                    this.isLoadingGuidelineCheck = false;
+                    this.guidelineCheckResponse = null;
+                    this.guidelineCheckError = null;
+                },
+                resetNewFeatureFaq() {
+                    this.newFeatureDescriptionForFaq = '';
+                    this.isLoadingNewFeatureFaq = false;
+                    this.newFeatureFaqResponse = null;
+                    this.newFeatureFaqError = null;
+                },
+                resetKeywordSuggestion() {
+                    this.isLoadingKeywordSuggestion = false;
+                    this.keywordSuggestions = [];
+                    this.keywordSuggestionError = null;
+                },
+                resetDataSheetSuggestion() {
+                    this.isLoadingDataSheetSuggestion = false;
+                    this.dataSheetSuggestionResponse = null;
+                    this.dataSheetSuggestionError = null;
+                },
+                resetMarketNews() {
+                    this.isLoadingMarketNews = false;
+                    this.marketNewsResponse = null;
+                    this.marketNewsError = null;
+                },
+                showSnackbar(text, color = 'info', timeout = 3000) {
+                    this.snackbar.text = text; this.snackbar.color = color; this.snackbar.timeout = timeout; this.snackbar.show = true;
+                },
+                getPlaceholderIcon(pageName) {
+                    return this.placeholderIcons[pageName] || this.placeholderIcons['default'];
+                },
+                copyToClipboard(text) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text; document.body.appendChild(textArea);
+                    textArea.focus(); textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        this.showSnackbar('Vágólapra másolva!', 'success');
+                    } catch (err) {
+                        this.showSnackbar('Hiba a vágólapra másoláskor.', 'error');
+                    }
+                    document.body.removeChild(textArea);
+                },
+                setupAuthListener() {
+                    if (auth) {
+                        auth.onAuthStateChanged(user => {
+                            if (user) {
+                                this.userId = user.uid;
+                                if(!this.currentUserRole && this.selectedRole) { this.currentUserRole = this.selectedRole; } 
+                                else if (!this.currentUserRole && !this.selectedRole) { this.logout(); }
+                            } else {
+                                this.userId = null;
+                                if (this.currentUserRole) { this.logout(); }
+                            }
+                        });
+                    } else { console.warn("Firebase Auth is not initialized."); }
+                }
+            },
+            created() {
+                this.setupAuthListener();
+                this.drawer = this.$vuetify.breakpoint.lgAndUp; // Drawer permanent on large screens
+            },
+            watch: {
+                // No longer need to watch breakpoint to toggle drawer for desktop, it's handled by :permanent
+            }
+        });
+    </script>
+</body>
+</html>
