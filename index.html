@@ -1680,7 +1680,16 @@
                 }
             },
             methods: {
-                // ... (meglévő metódusok itt változatlanul) ...
+                isAdminPage(pageName) {
+                    const adminPages = [
+                        'Irányítópult', 'Felhasználók Kezelése', 'Vevői Igények Kezelése', 
+                        'Gyártói Készletek Kezelése', 'Összevezetések', 'Kamion Tervezés', 'Szállítási Sablonok'
+                    ];
+                    const nonAdminSpecificPages = ['Új Igény Leadása', 'Új Készlet Feltöltése', 'Igényeim', 'Készleteim', 'Profilom'];
+                    if (this.currentUserRole === 'admin' && adminPages.includes(pageName)) return true;
+                    if (!nonAdminSpecificPages.includes(pageName) && !adminPages.includes(pageName)) return true; 
+                    return false;
+                },
                 async login() {
                     if (!this.selectedRole) {
                         this.showSnackbar('Kérjük, válasszon szerepkört!', 'error');
@@ -1690,21 +1699,48 @@
                     this.navigateTo('Irányítópult'); 
                     
                     if (auth) {
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            console.log("Attempting to sign in with custom token...");
+                            try {
                                 await auth.signInWithCustomToken(__initial_auth_token);
-                            } else {
-                                await auth.signInAnonymously();
+                                this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
+                                console.log("Logged in with custom token. User ID:", this.userId);
+                                this.showSnackbar(`Sikeres bejelentkezés mint ${this.currentUserRoleName}. User ID: ${this.userId}`, 'success');
+                            } catch (customTokenError) {
+                                console.warn("Custom token sign-in failed:", customTokenError.code, customTokenError.message);
+                                if (customTokenError.code === 'auth/invalid-custom-token' || customTokenError.code === 'auth/argument-error') { 
+                                    console.log("Invalid custom token or argument error. Attempting to sign in anonymously...");
+                                    try {
+                                        await auth.signInAnonymously();
+                                        this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
+                                        console.log("Logged in anonymously after custom token failure. User ID:", this.userId);
+                                        this.showSnackbar(`Sikeres anonim bejelentkezés (egyedi token hiba után). User ID: ${this.userId}`, 'success');
+                                    } catch (anonymousError) {
+                                        console.error("Anonymous sign-in also failed:", anonymousError);
+                                        this.userId = crypto.randomUUID(); 
+                                        this.showSnackbar(`Firebase bejelentkezési hiba: ${anonymousError.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
+                                    }
+                                } else {
+                                    console.error("Firebase custom token sign-in error (other):", customTokenError);
+                                    this.userId = crypto.randomUUID(); 
+                                    this.showSnackbar(`Firebase bejelentkezési hiba: ${customTokenError.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
+                                }
                             }
-                            this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
-                            this.showSnackbar(`Sikeres bejelentkezés mint ${this.currentUserRoleName}. User ID: ${this.userId}`, 'success');
-                        } catch (error) {
-                            console.error("Firebase login error:", error);
-                            this.userId = crypto.randomUUID();
-                            this.showSnackbar(`Firebase bejelentkezési hiba: ${error.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
+                        } else {
+                            console.log("No custom token provided or token is falsy. Attempting to sign in anonymously...");
+                            try {
+                                await auth.signInAnonymously();
+                                this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
+                                console.log("Logged in anonymously. User ID:", this.userId);
+                                this.showSnackbar(`Sikeres anonim bejelentkezés. User ID: ${this.userId}`, 'success');
+                            } catch (error) {
+                                console.error("Firebase anonymous sign-in error:", error);
+                                this.userId = crypto.randomUUID(); 
+                                this.showSnackbar(`Firebase bejelentkezési hiba: ${error.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
+                            }
                         }
                     } else {
-                         this.userId = crypto.randomUUID();
+                         this.userId = crypto.randomUUID(); 
                          this.showSnackbar('Firebase nincs inicializálva. Folytatás offline módban.', 'warning');
                     }
                     this.resetAllFormsAndData();
@@ -2823,4 +2859,4 @@
         });
     </script>
 </body>
-</ht
+</html>
