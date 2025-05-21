@@ -1418,7 +1418,7 @@
 
     <script type="module">
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "YOUR_API_KEY", 
+            apiKey: "YOUR_API_KEY", // <-- IDE ÍRD BE A VALÓDI FIREBASE API KULCSODAT, HA HELYBEN TESZTELSZ!
             authDomain: "YOUR_AUTH_DOMAIN",
             projectId: "YOUR_PROJECT_ID",
             storageBucket: "YOUR_STORAGE_BUCKET",
@@ -1431,10 +1431,16 @@
         let db;
 
         try {
-            app = firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            db = firebase.firestore();
-            console.log("Firebase initialized successfully.");
+            // Csak akkor inicializáljuk a Firebase-t, ha a firebaseConfig.apiKey NEM "YOUR_API_KEY"
+            // Ez megakadályozza az inicializálási hibát, ha a felhasználó még nem cserélte ki a placeholder kulcsot.
+            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                console.log("Firebase initialized successfully.");
+            } else {
+                console.warn("Firebase initialization skipped: API key is a placeholder. Please provide a valid Firebase API key for full functionality.");
+            }
         } catch (error) {
             console.error("Firebase initialization error:", error);
         }
@@ -1698,50 +1704,62 @@
                     this.currentUserRole = this.selectedRole;
                     this.navigateTo('Irányítópult'); 
                     
-                    if (auth) {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            console.log("Attempting to sign in with custom token...");
-                            try {
-                                await auth.signInWithCustomToken(__initial_auth_token);
-                                this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
-                                console.log("Logged in with custom token. User ID:", this.userId);
-                                this.showSnackbar(`Sikeres bejelentkezés mint ${this.currentUserRoleName}. User ID: ${this.userId}`, 'success');
-                            } catch (customTokenError) {
-                                console.warn("Custom token sign-in failed:", customTokenError.code, customTokenError.message);
-                                if (customTokenError.code === 'auth/invalid-custom-token' || customTokenError.code === 'auth/argument-error') { 
-                                    console.log("Invalid custom token or argument error. Attempting to sign in anonymously...");
-                                    try {
-                                        await auth.signInAnonymously();
-                                        this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
-                                        console.log("Logged in anonymously after custom token failure. User ID:", this.userId);
-                                        this.showSnackbar(`Sikeres anonim bejelentkezés (egyedi token hiba után). User ID: ${this.userId}`, 'success');
-                                    } catch (anonymousError) {
-                                        console.error("Anonymous sign-in also failed:", anonymousError);
-                                        this.userId = crypto.randomUUID(); 
-                                        this.showSnackbar(`Firebase bejelentkezési hiba: ${anonymousError.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
-                                    }
-                                } else {
-                                    console.error("Firebase custom token sign-in error (other):", customTokenError);
-                                    this.userId = crypto.randomUUID(); 
-                                    this.showSnackbar(`Firebase bejelentkezési hiba: ${customTokenError.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
-                                }
-                            }
-                        } else {
-                            console.log("No custom token provided or token is falsy. Attempting to sign in anonymously...");
-                            try {
-                                await auth.signInAnonymously();
-                                this.userId = auth.currentUser ? auth.currentUser.uid : crypto.randomUUID();
-                                console.log("Logged in anonymously. User ID:", this.userId);
-                                this.showSnackbar(`Sikeres anonim bejelentkezés. User ID: ${this.userId}`, 'success');
-                            } catch (error) {
-                                console.error("Firebase anonymous sign-in error:", error);
-                                this.userId = crypto.randomUUID(); 
-                                this.showSnackbar(`Firebase bejelentkezési hiba: ${error.message}. Folytatás offline módban. User ID: ${this.userId}`, 'warning', 6000);
+                    if (!auth) {
+                        console.error("Firebase Auth SDK is not initialized. Cannot proceed with login.");
+                        this.userId = crypto.randomUUID(); 
+                        this.showSnackbar('Firebase nincs megfelelően inicializálva. Folytatás offline módban.', 'error', 7000);
+                        this.resetAllFormsAndData();
+                        return;
+                    }
+
+                    let loggedInSuccessfully = false;
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && __initial_auth_token.trim() !== '') {
+                        console.log("Attempting to sign in with custom token...");
+                        try {
+                            await auth.signInWithCustomToken(__initial_auth_token);
+                            this.userId = auth.currentUser.uid;
+                            console.log("Successfully signed in with custom token. User ID:", this.userId);
+                            this.showSnackbar(`Sikeres bejelentkezés egyedi azonosítóval mint ${this.currentUserRoleName}. User ID: ${this.userId}`, 'success');
+                            loggedInSuccessfully = true;
+                        } catch (customTokenError) {
+                            console.error("Custom token sign-in failed:", customTokenError);
+                            if (customTokenError.code === 'auth/invalid-custom-token') {
+                                this.showSnackbar('Az egyedi azonosító érvénytelen. Próbálkozás anonim móddal...', 'warning', 4000);
+                            } else {
+                                this.showSnackbar(`Egyedi azonosítós bejelentkezés sikertelen (${customTokenError.code}). Próbálkozás anonim móddal...`, 'warning', 4000);
                             }
                         }
                     } else {
-                         this.userId = crypto.randomUUID(); 
-                         this.showSnackbar('Firebase nincs inicializálva. Folytatás offline módban.', 'warning');
+                        console.log("__initial_auth_token is not provided or is empty. Proceeding to anonymous sign-in attempt.");
+                    }
+
+                    if (!loggedInSuccessfully) {
+                        console.log("Attempting to sign in anonymously...");
+                        try {
+                            await auth.signInAnonymously();
+                            this.userId = auth.currentUser.uid;
+                            console.log("Successfully signed in anonymously. User ID:", this.userId);
+                            this.showSnackbar(`Sikeres anonim bejelentkezés mint ${this.currentUserRoleName}. User ID: ${this.userId}`, 'success');
+                            loggedInSuccessfully = true;
+                        } catch (anonError) {
+                            console.error("Anonymous sign-in also failed:", anonError);
+                            this.userId = crypto.randomUUID(); 
+                            let anonErrorMessage = `Firebase anonim bejelentkezési hiba: ${anonError.message}.`;
+                            if (anonError.code === 'auth/api-key-not-valid') {
+                                anonErrorMessage += " Kérjük, ellenőrizze a Firebase API kulcsot a kódban!";
+                            }
+                            this.showSnackbar(`${anonErrorMessage} Folytatás offline módban. User ID: ${this.userId}`, 'error', 7000);
+                        }
+                    }
+                    
+                    if (loggedInSuccessfully && auth.currentUser && !this.userId) { 
+                        this.userId = auth.currentUser.uid;
+                    } else if (!loggedInSuccessfully && !this.userId) { 
+                         this.userId = crypto.randomUUID();
+                         console.warn("Could not sign in to Firebase, using random UUID for offline mode.");
+                         if (!this.snackbar.show) { 
+                            this.showSnackbar('Nem sikerült csatlakozni a Firebase-hez. Folytatás offline módban.', 'error');
+                         }
                     }
                     this.resetAllFormsAndData();
                 },
@@ -1878,7 +1896,10 @@
                 async callGeminiAPI(promptText) {
                     const chatHistory = [{ role: "user", parts: [{ text: promptText }] }];
                     const payload = { contents: chatHistory };
-                    const apiKey = ""; 
+                    // A KULCSOT ITT A FELHASZNÁLÓ KÉRÉSÉRE CSERÉLTEM LE.
+                    // FONTOS: EZT A KULCSOT NE TEGYE FEL NYILVÁNOS GITHUB REPOZITÓRIUMBA!
+                    // A CANVAS KÖRNYEZETBEN AZ `const apiKey = "";` A HELYES!
+                    const apiKey = "AIzaSyBAxm9zBh2P1ZFl92j7iaScxFp7WawsN10"; 
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
